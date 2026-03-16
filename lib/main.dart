@@ -91,12 +91,13 @@ class _SplashScreenState extends State<SplashScreen>
 }
 
 // ------------------------- HOME SCREEN -------------------------
+class // ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatelessWidget {
-  final List<String> categories = [
-    'Hair Services',
-    'Hair Laundry',
-    'Makeup',
-    'Admin Dashboard'
+  final List<Map<String, dynamic>> categories = [
+    {'name': 'Hair Services', 'icon': Icons.content_cut},
+    {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
+    {'name': 'Makeup', 'icon': Icons.brush},
+    {'name': 'Admin Dashboard', 'icon': Icons.admin_panel_settings},
   ];
 
   @override
@@ -105,7 +106,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset('assets/logo.jpg', width: 40, height: 40),
+            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
             SizedBox(width: 8),
             Text('NOMBU Beauty'),
           ],
@@ -113,59 +114,69 @@ class HomeScreen extends StatelessWidget {
         elevation: 5,
         backgroundColor: Colors.pink.shade400,
       ),
-      body: ListView.builder(
+      body: Padding(
         padding: EdgeInsets.all(12),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              if (categories[index] == 'Admin Dashboard') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => AdminDashboard()),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        ServiceScreen(category: categories[index]),
+        child: GridView.builder(
+          itemCount: categories.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // two cards per row
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1, // square cards
+          ),
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return GestureDetector(
+              onTap: () {
+                if (category['name'] == 'Admin Dashboard') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AdminDashboard()),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ServiceScreen(category: category['name']),
+                    ),
+                  );
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.pink.shade100, Colors.pink.shade50],
                   ),
-                );
-              }
-            },
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 8),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.pink.shade100, Colors.pink.shade50],
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.pink.shade200.withOpacity(0.4),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.pink.shade200.withOpacity(0.4),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
+                    SizedBox(height: 12),
+                    Text(
+                      category['name'],
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.pink.shade800),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    categories[index],
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Icon(Icons.arrow_forward, color: Colors.pink.shade800),
-                ],
-              ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+  }
+}
   }
 }
 
