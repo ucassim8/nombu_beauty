@@ -82757,7 +82757,7 @@ j.toString
 o=p.x
 n=o.a
 o=B.d.jO(B.e.l(o.b),2,"0")
-k="https://wa.me/0672412217?text="+A.Ee(B.h7,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking.\n\nService: "+A.n(p.e)+"\nDate: "+(""+A.ch(j)+"/"+A.bd(j)+"/"+A.b0(j))+"\nTime: "+(""+n+":"+o)+"\n\nEstimated Price: R"+l+"\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle/photo.\n\nThank you.",B.aj,!1)
+k="https://wa.me/+27672412217?text="+A.Ee(B.h7,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking.\n\nService: "+A.n(p.e)+"\nDate: "+(""+A.ch(j)+"/"+A.bd(j)+"/"+A.b0(j))+"\nTime: "+(""+n+":"+o)+"\n\nEstimated Price: R"+l+"\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle/photo.\n\nThank you.",B.aj,!1)
 s=6
 return A.V(A.aqK(k),$async$ql)
 case 6:s=b?3:5
