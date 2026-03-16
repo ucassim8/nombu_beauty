@@ -1,20 +1,17 @@
-name: Build Flutter APK
+name: Build Flutter App
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
@@ -22,18 +19,33 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Recreate Android folder if missing
+      - name: Ensure Android folder exists
         run: |
           if [ ! -d "android" ]; then
-            echo "Android folder missing. Creating..."
             flutter create .
           fi
 
-      - name: Build release APK
+      - name: Build Release APK
         run: flutter build apk --release
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          name: Nombu-Beauty-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          flutter-version: '3.24.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Ensure iOS folder exists
+        run: |
+          if [ ! -d "ios" ]; then
+            flutter create .
+          fi
+
+      - name: Build iOS IPA
+        run: flutter build ipa --release --no-codesign
