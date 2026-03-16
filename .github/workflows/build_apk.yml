@@ -53,8 +53,8 @@ jobs:
             flutter create .
           fi
 
-      - name: Build iOS IPA
-        run: flutter build ipa --release --no-codesign
+      - name: Build iOS App
+        run: flutter build ios --release --no-codesign
 
       - name: Upload IPA as artifact
         uses: actions/upload-artifact@v4
