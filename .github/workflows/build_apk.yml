@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  android-build:
+  build-android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -34,7 +34,7 @@ jobs:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-  ios-build:
+  build-ios:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
           name: app-release-ipa
           path: build/ios/ipa/*.ipa
 
-  web-build:
+  build-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -81,16 +81,17 @@ jobs:
             flutter create .
           fi
 
-      - name: Build Flutter Web
+      - name: Build Web Release
         run: flutter build web --release
 
-      - name: Move web build to docs/
+      - name: Move web build to docs
         run: |
           rm -rf docs
-          mv build/web docs
+          mkdir docs
+          cp -r build/web/* docs/
 
-      - name: Deploy docs to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v6
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
