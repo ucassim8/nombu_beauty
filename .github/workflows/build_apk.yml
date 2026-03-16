@@ -1,39 +1,59 @@
 name: Build and Deploy Flutter Web
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 on:
   push:
     branches:
       - main
 
 jobs:
-  build-web:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # 1. Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      # 2. Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # 4. Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web --release
 
-      - name: Move web build to docs/
-        run: |
-          rm -rf docs
-          mv build/web docs
-
+      # 5. Deploy to gh-pages branch
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
-        with:
-          folder: docs
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # Create a temporary folder
+          TEMP_DIR=$(mktemp -d)
+          
+          # Copy web build to temp folder
+          cp -r build/web/* $TEMP_DIR
+          
+          # Switch to gh-pages branch (create if not exists)
+          if git show-ref --quiet refs/heads/gh-pages; then
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
+          fi
+          
+          # Remove old files
+          git rm -rf . || true
+          
+          # Copy new build
+          cp -r $TEMP_DIR/* .
+          
+          # Commit and push
+          git add .
+          git commit -m "Deploy Flutter Web" || echo "No changes to commit"
+          git push -u origin gh-pages --force
