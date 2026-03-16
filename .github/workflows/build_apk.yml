@@ -1,22 +1,48 @@
-build-web:
-  runs-on: ubuntu-latest
+name: Build & Deploy Flutter Web
 
-  steps:
-    - uses: actions/checkout@v4
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on push to main
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.24.0'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-    - name: Install dependencies
-      run: flutter pub get
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Build Web
-      run: flutter build web
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
 
-    - name: Upload Web Build
-      uses: actions/upload-artifact@v4
-      with:
-        name: web-build
-        path: build/web
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release
+
+      - name: Deploy to gh-pages
+        env:
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}  # Personal access token or GitHub Actions token
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create orphan gh-pages branch
+          git checkout --orphan gh-pages
+          git reset --hard
+          
+          # Copy Flutter build to root
+          cp -r build/web/* .
+          
+          # Prevent Jekyll from processing files
+          touch .nojekyll
+          
+          git add .
+          git commit -m "Deploy Flutter Web"
+          
+          # Force push to gh-pages branch
+          git push -f https://x-access-token:${GH_PAT}@github.com/${{ github.repository }} gh-pages
