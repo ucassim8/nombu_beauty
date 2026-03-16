@@ -1,0 +1,9 @@
+{
+  "name": "Nombu Beauty",
+  "short_name": "NombuBeauty",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff4081",
+  "description": "Nombu Beauty Booking App"
+}
