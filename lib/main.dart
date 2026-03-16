@@ -13,10 +13,10 @@ class NombuBeautyApp extends StatelessWidget {
       title: 'NOMBU Beauty',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.pink,
-        scaffoldBackgroundColor: Color(0xFFFDE6EB),
-        fontFamily: 'Poppins',
-      ),
+  primarySwatch: Colors.pink,
+  scaffoldBackgroundColor: Color(0xFFFDE6EB),
+  // remove: fontFamily: 'PlayfairDisplay', 'Montserrat'
+),
       home: SplashScreen(),
     );
   }
