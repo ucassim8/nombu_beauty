@@ -1,4 +1,4 @@
-name: Build and Deploy Flutter Web
+name: Build Flutter Web and Deploy
 
 on:
   push:
@@ -6,35 +6,33 @@ on:
       - main
 
 jobs:
-  build-and-deploy-web:
+  build-web:
     runs-on: ubuntu-latest
+
     steps:
-      # 1️⃣ Checkout the repo
+      # 1. Checkout repo
       - uses: actions/checkout@v4
 
-      # 2️⃣ Set up Flutter
+      # 2. Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
 
-      # 3️⃣ Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # 4️⃣ Build the web release
+      # 4. Build the web app
       - name: Build Flutter Web
         run: flutter build web --release
 
-      # 5️⃣ Upload build to GitHub Pages
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: build/web
+      # 5. Move the build to docs/
+      - name: Copy web build to docs/
+        run: |
+          rm -rf docs
+          mv build/web docs
 
-  deploy:
-    needs: build-and-deploy-web
-    runs-on: ubuntu-latest
-    steps:
+      # 6. Commit docs/ and push to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
