@@ -22,11 +22,3 @@ flutter:
 
   assets:
     - assets/Logonombu.jpg
-
-  fonts:
-    - family: PlayfairDisplay
-      fonts:
-        - asset: assets/fonts/PlayfairDisplay-Regular.ttf
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat-Regular.ttf
