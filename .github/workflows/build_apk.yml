@@ -1,4 +1,4 @@
-name: Build Flutter App
+name: Build Flutter App (Android, iOS, Web)
 
 on:
   push:
@@ -6,10 +6,13 @@ on:
       - main
 
 jobs:
+  # --------------------
+  # Build Android APK
+  # --------------------
   build-android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -34,10 +37,13 @@ jobs:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
+  # --------------------
+  # Build iOS IPA
+  # --------------------
   build-ios:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -53,7 +59,7 @@ jobs:
             flutter create .
           fi
 
-      - name: Build iOS IPA
+      - name: Build iOS IPA (no codesign)
         run: flutter build ipa --release --no-codesign
 
       - name: Upload IPA as artifact
@@ -62,10 +68,13 @@ jobs:
           name: app-release-ipa
           path: build/ios/ipa/*.ipa
 
+  # --------------------
+  # Build Flutter Web & Deploy to GitHub Pages
+  # --------------------
   build-web:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -81,11 +90,13 @@ jobs:
             flutter create .
           fi
 
-      - name: Build Flutter Web
+      - name: Build Web Release
         run: flutter build web --release
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v7
+        uses: actions/upload-pages-artifact@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
+          path: build/web
+
+      - name: Publish GitHub Pages
+        uses: actions/deploy-pages@v1
