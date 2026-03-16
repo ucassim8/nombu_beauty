@@ -75,14 +75,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Ensure Web support
-        run: flutter config --enable-web
+      - name: Ensure web folder exists
+        run: |
+          if [ ! -d "web" ]; then
+            flutter create .
+          fi
 
-      - name: Build Web Release
+      - name: Build Flutter Web
         run: flutter build web --release
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@c9f0c5a
+        uses: peaceiris/actions-gh-pages@v7
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
