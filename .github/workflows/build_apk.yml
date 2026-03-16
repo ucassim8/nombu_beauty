@@ -28,6 +28,12 @@ jobs:
       - name: Build Release APK
         run: flutter build apk --release
 
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
   build-ios:
     runs-on: macos-latest
     steps:
@@ -49,3 +55,9 @@ jobs:
 
       - name: Build iOS IPA
         run: flutter build ipa --release --no-codesign
+
+      - name: Upload IPA as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-ipa
+          path: build/ios/ipa/*.ipa
