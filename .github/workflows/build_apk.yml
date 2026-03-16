@@ -1,55 +1,22 @@
-name: Build and Deploy Flutter Web
+build-web:
+  runs-on: ubuntu-latest
 
-on:
-  push:
-    branches:
-      - main  # or whichever branch you want to trigger deploys
+  steps:
+    - uses: actions/checkout@v4
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
 
-    steps:
-      # 1. Check out repo
-      - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: flutter pub get
 
-      # 2. Set up Flutter
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'  # match your Flutter version
+    - name: Build Web
+      run: flutter build web
 
-      # 3. Install dependencies
-      - name: Install dependencies
-        run: flutter pub get
-
-      # 4. Build Flutter Web
-      - name: Build Web
-        run: flutter build web --release
-
-      # 5. Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-          # Create temp folder for web build
-          TEMP_DIR=$(mktemp -d)
-          cp -r build/web/* $TEMP_DIR
-
-          # Switch to gh-pages branch or create orphan if it doesn't exist
-          if git show-ref --quiet refs/heads/gh-pages; then
-            git checkout gh-pages
-          else
-            git checkout --orphan gh-pages
-          fi
-
-          # Clean old files
-          git rm -rf . || true
-          cp -r $TEMP_DIR/* .
-
-          git add .
-          git commit -m "Deploy Flutter Web" || echo "No changes to commit"
-
-          # Push using GITHUB_TOKEN to avoid permission errors
-          git push -u https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} gh-pages --force
+    - name: Upload Web Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build
+        path: build/web
