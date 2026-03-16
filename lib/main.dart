@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 
 void main() => runApp(NombuBeautyApp());
 
@@ -13,34 +13,49 @@ class NombuBeautyApp extends StatelessWidget {
       title: 'NOMBU Beauty',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.pink,
-        scaffoldBackgroundColor: Color(0xFFFDE6EB),
-        fontFamily: 'Poppins',
+        primaryColor: Color(0xFFB8256B), // deep rose
+        scaffoldBackgroundColor: Color(0xFFFDE6EB), // light pink
+        textTheme: TextTheme(
+          headline1: TextStyle(
+              fontFamily: 'PlayfairDisplay',
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                    blurRadius: 6, color: Colors.black26, offset: Offset(2, 2))
+              ]),
+          bodyText1: TextStyle(fontFamily: 'Montserrat', fontSize: 16),
+        ),
       ),
       home: SplashScreen(),
     );
   }
 }
 
-// ----------------- SPLASH SCREEN -----------------
+// ---------------- Splash Screen ----------------
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
+
     _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 2));
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
+        AnimationController(vsync: this, duration: Duration(milliseconds: 1500));
+    _slideAnimation =
+        Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0)).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward();
+
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (_) => HomeScreen()));
@@ -56,26 +71,13 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/Logonombu.jpg',
-                width: 80,
-                height: 80,
-              ),
-              SizedBox(width: 12),
-              Text(
-                'NOMBU Beauty',
-                style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.pinkAccent),
-              ),
-            ],
+      backgroundColor: Color(0xFFB8256B), // deep pink background
+      body: Center(
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: Text(
+            'NOMBU Beauty',
+            style: Theme.of(context).textTheme.headline1,
           ),
         ),
       ),
@@ -83,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ----------------- BOOKING MODEL -----------------
+// ---------------- Booking Model ----------------
 class BookingRequest {
   final String service;
   final DateTime date;
@@ -104,13 +106,13 @@ class BookingRequest {
 
 List<BookingRequest> bookingRequests = [];
 
-// ----------------- HOME SCREEN -----------------
+// ---------------- Home Screen ----------------
 class HomeScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> categories = [
-    {'name': 'Hair Services', 'icon': Icons.content_cut},
-    {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
-    {'name': 'Makeup', 'icon': Icons.brush},
-    {'name': 'Admin Dashboard', 'icon': Icons.dashboard},
+  final List<String> categories = [
+    'Hair Services',
+    'Hair Laundry',
+    'Makeup',
+    'Admin Dashboard'
   ];
 
   @override
@@ -119,79 +121,62 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
-            SizedBox(width: 8),
-            Text('NOMBU Beauty')
+            // Optional logo on top-left
+            // Image.asset('assets/Logonombu.jpg', height: 40),
+            SizedBox(width: 10),
+            Text(
+              'NOMBU Beauty',
+              style: TextStyle(fontFamily: 'PlayfairDisplay', fontSize: 24),
+            ),
           ],
         ),
-        centerTitle: true,
+        backgroundColor: Color(0xFFB8256B),
       ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        int columns = 2;
-        if (constraints.maxWidth > 1200) columns = 4;
-        else if (constraints.maxWidth > 800) columns = 3;
-
-        return Padding(
-          padding: EdgeInsets.all(12),
-          child: GridView.builder(
-            itemCount: categories.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: columns,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.1),
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  if (categories[index]['name'] == 'Admin Dashboard') {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => AdminDashboard()));
-                  } else {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                ServiceScreen(category: categories[index]['name'])));
-                  }
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Colors.pinkAccent, Colors.pink.shade100],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.pink.shade100,
-                          offset: Offset(4, 4),
-                          blurRadius: 8)
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(categories[index]['icon'], size: 50, color: Colors.white),
-                      SizedBox(height: 12),
-                      Text(categories[index]['name'],
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          textAlign: TextAlign.center),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      }),
+      body: ListView.builder(
+        padding: EdgeInsets.all(12),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          return Card(
+            elevation: 4,
+            shadowColor: Colors.black26,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: EdgeInsets.symmetric(vertical: 8),
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              title: Text(
+                categories[index],
+                style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              ),
+              trailing: Icon(Icons.arrow_forward, color: Color(0xFFB8256B)),
+              onTap: () {
+                if (categories[index] == 'Admin Dashboard') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => AdminDashboard()),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ServiceScreen(category: categories[index]),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
-// ----------------- SERVICE SCREEN -----------------
+// ---------------- Service Screen ----------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -241,13 +226,16 @@ class _ServiceScreenState extends State<ServiceScreen> {
   Future<void> pickDateTime() async {
     DateTime now = DateTime.now();
     final DateTime? date = await showDatePicker(
-        context: context,
-        initialDate: now,
-        firstDate: now,
-        lastDate: DateTime(now.year + 1));
+      context: context,
+      initialDate: now,
+      firstDate: now,
+      lastDate: DateTime(now.year + 1),
+    );
     if (date != null) {
-      final TimeOfDay? time =
-          await showTimePicker(context: context, initialTime: TimeOfDay.now());
+      final TimeOfDay? time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
       if (time != null) setState(() {
         selectedDate = date;
         selectedTime = time;
@@ -263,11 +251,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
 
     bookingRequests.add(BookingRequest(
-        service: selectedService!,
-        date: selectedDate!,
-        time: selectedTime!,
-        afterHours: afterHours,
-        photo: selectedImage));
+      service: selectedService!,
+      date: selectedDate!,
+      time: selectedTime!,
+      afterHours: afterHours,
+      photo: selectedImage,
+    ));
 
     int estimatedPrice = selectedPrice!;
     if (afterHours) estimatedPrice += 100;
@@ -277,14 +266,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String timeStr =
         '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
     String message =
-        'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\nService: $selectedService\nDate: $dateStr\nTime: $timeStr\n\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle/photo.\n\nThank you.';
+        'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\nService: $selectedService\nDate: $dateStr\nTime: $timeStr\n\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference hairstyle photo.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open WhatsApp')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Could not open WhatsApp')));
     }
   }
 
@@ -294,106 +283,93 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(widget.category)),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          bool isWide = constraints.maxWidth > 800;
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(20),
-            child: isWide
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: buildServiceSelection(categoryServices)),
-                      SizedBox(width: 40),
-                      Expanded(child: buildBookingOptions()),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      buildServiceSelection(categoryServices),
-                      SizedBox(height: 20),
-                      buildBookingOptions(),
-                    ],
-                  ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget buildServiceSelection(List<Map<String, dynamic>> categoryServices) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: categoryServices
-          .map((s) => ChoiceChip(
-                label: Text('${s['name']} - R${s['price']}'),
-                selected: selectedService == s['name'],
-                onSelected: (_) {
-                  setState(() {
-                    selectedService = s['name'];
-                    selectedPrice = s['price'];
-                  });
-                },
-                selectedColor: Colors.pinkAccent,
-                backgroundColor: Colors.pink.shade100,
-                labelStyle: TextStyle(
-                    color:
-                        selectedService == s['name'] ? Colors.white : Colors.black),
-              ))
-          .toList(),
-    );
-  }
-
-  Widget buildBookingOptions() {
-    return Column(
-      children: [
-        Row(
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
           children: [
-            Checkbox(
-              value: afterHours,
-              onChanged: (val) => setState(() => afterHours = val!),
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                labelText: 'Select a service',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              value: selectedService,
+              items: categoryServices
+                  .map<DropdownMenuItem<String>>(
+                    (s) => DropdownMenuItem<String>(
+                      value: s['name'] as String,
+                      child: Text('${s['name']} - R${s['price']}'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  selectedService = val;
+                  selectedPrice = categoryServices
+                      .firstWhere((s) => s['name'] == val)['price'];
+                });
+              },
             ),
-            Text('After-hours (+R100)'),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Checkbox(
+                    value: afterHours,
+                    onChanged: (val) => setState(() => afterHours = val!)),
+                Text('After-hours (+R100)'),
+              ],
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Color(0xFFB8256B),
+              ),
+              onPressed: pickDateTime,
+              child: Text(
+                selectedDate == null
+                    ? 'Select Date & Time'
+                    : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Color(0xFFB8256B),
+              ),
+              onPressed: pickImage,
+              child: Text(selectedImage == null
+                  ? 'Upload Reference Photo (Optional)'
+                  : 'Photo Selected'),
+            ),
+            SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Colors.pinkAccent,
+              ),
+              onPressed: sendWhatsAppRequest,
+              child: Text('Send Booking Request via WhatsApp',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
           ],
         ),
-        SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: pickDateTime,
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pinkAccent,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-          child: Text(selectedDate == null
-              ? 'Select Date & Time'
-              : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}'),
-        ),
-        SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: pickImage,
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink.shade300,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-          child: Text(selectedImage == null
-              ? 'Upload Reference Photo (Optional)'
-              : 'Photo Selected'),
-        ),
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: sendWhatsAppRequest,
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pinkAccent,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-          child: Text('Send Booking Request via WhatsApp'),
-        ),
-      ],
+      ),
     );
   }
 }
 
-// ----------------- ADMIN DASHBOARD -----------------
+// ---------------- Admin Dashboard ----------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -405,9 +381,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
-      setState(() {
-        _authenticated = true;
-      });
+      setState(() => _authenticated = true);
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Wrong password')));
@@ -440,77 +414,54 @@ class _AdminDashboardState extends State<AdminDashboard> {
       appBar: AppBar(title: Text('Admin Dashboard')),
       body: bookingRequests.isEmpty
           ? Center(child: Text('No booking requests yet'))
-          : LayoutBuilder(
-              builder: (context, constraints) {
-                bool isWide = constraints.maxWidth > 800;
-                return GridView.builder(
-                  padding: EdgeInsets.all(12),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: isWide ? 2 : 1,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 3),
-                  itemCount: bookingRequests.length,
-                  itemBuilder: (context, index) {
-                    BookingRequest req = bookingRequests[index];
-                    Color tagColor = req.status == 'Pending'
-                        ? Colors.orange
-                        : req.status == 'Confirmed'
-                            ? Colors.green
-                            : Colors.red;
-
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      child: ListTile(
-                        leading: req.photo != null
-                            ? Image.file(req.photo!, width: 50, height: 50)
-                            : Icon(Icons.image_not_supported),
-                        title: Text('${req.service}'),
-                        subtitle: Text(
-                            '${req.date.day}/${req.date.month}/${req.date.year} ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')}\nAfter-hours: ${req.afterHours ? "Yes" : "No"}'),
-                        trailing: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                              color: tagColor,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Text(req.status,
-                              style: TextStyle(color: Colors.white)),
+          : ListView.builder(
+              itemCount: bookingRequests.length,
+              itemBuilder: (context, index) {
+                BookingRequest req = bookingRequests[index];
+                return Card(
+                  margin: EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text('${req.service} (${req.status})'),
+                    subtitle: Text(
+                        '${req.date.day}/${req.date.month}/${req.date.year} ${req.time.hour}:${req.time.minute.toString().padLeft(2, '0')}\nAfter-hours: ${req.afterHours ? "Yes" : "No"}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.check, color: Colors.green),
+                          onPressed: () {
+                            setState(() {
+                              req.status = 'Confirmed';
+                            });
+                          },
                         ),
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                    title: Text('Update Status'),
-                                    content: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        IconButton(
-                                            icon:
-                                                Icon(Icons.check, color: Colors.green),
-                                            onPressed: () {
-                                              setState(() {
-                                                req.status = 'Confirmed';
-                                              });
-                                              Navigator.pop(context);
-                                            }),
-                                        IconButton(
-                                            icon: Icon(Icons.close, color: Colors.red),
-                                            onPressed: () {
-                                              setState(() {
-                                                req.status = 'Declined';
-                                              });
-                                              Navigator.pop(context);
-                                            }),
-                                      ],
-                                    ),
-                                  ));
-                        },
-                      ),
-                    );
-                  },
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              req.status = 'Declined';
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      if (req.photo != null) {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text('Reference Photo'),
+                            content: Image.file(req.photo!),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Close'))
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 );
               },
             ),
