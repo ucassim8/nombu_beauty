@@ -2,7 +2,7 @@ name: Build NOMBU Beauty APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -10,34 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
 
-      - name: Create Flutter project structure
-        run: |
-          flutter create temp_app
-          cp -r lib temp_app/
-          cp pubspec.yaml temp_app/
-          if [ -d assets ]; then cp -r assets temp_app/; fi
-          cd temp_app
+    - name: Install Android SDK
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 35
+        target: default
+        arch: x86_64
+        force-avd-creation: true
 
-      - name: Install dependencies
-        run: |
-          cd temp_app
-          flutter pub get
+    - name: Get dependencies
+      run: flutter pub get
 
-      - name: Build APK
-        run: |
-          cd temp_app
-          flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: nombu-beauty-apk
-          path: temp_app/build/app/outputs/flutter-apk/app-release.apk
+    - name: Build APK
+      run: flutter build apk --release --no-tree-shake-icons
