@@ -15,29 +15,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
       - uses: actions/checkout@v4
 
-      # 2. Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
 
-      # 3. Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # 4. Build the web app
       - name: Build Flutter Web
         run: flutter build web --release
 
-      # 5. Move the build to docs/
-      - name: Copy web build to docs/
+      - name: Move web build to docs/
         run: |
           rm -rf docs
           mv build/web docs
 
-      # 6. Commit docs/ and push to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
