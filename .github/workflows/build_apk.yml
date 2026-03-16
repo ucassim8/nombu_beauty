@@ -1,5 +1,10 @@
 name: Build Flutter Web and Deploy
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 on:
   push:
     branches:
