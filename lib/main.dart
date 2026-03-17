@@ -302,8 +302,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
 // Encode the message
 String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeComponent(message)}';
-
-}
+// Launch WhatsApp
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Could not launch WhatsApp')),
+    );
+  }
+  
   
   @override
   Widget build(BuildContext context) {
