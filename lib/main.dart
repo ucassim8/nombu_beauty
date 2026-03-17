@@ -317,6 +317,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   onChanged: (val) => setState(() => afterHours = val!),
                 ),
                 Text('After-hours (+R100)'),
+              ],
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
