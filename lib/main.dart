@@ -305,10 +305,6 @@ String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeComponent(message)}
 // Launch WhatsApp
   if (await canLaunch(url)) {
     await launch(url);
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Could not launch WhatsApp')),
-    );
   }
   
   
