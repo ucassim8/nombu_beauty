@@ -303,15 +303,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
 // Encode the message
 String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeComponent(message)}';
 
-// Add a timestamp to force WhatsApp to refresh the text
-url += '&v=${DateTime.now().millisecondsSinceEpoch}';
-
-// Launch WhatsApp once
-if (await canLaunch(url)) {
-  await launch(url);
 }
   
-
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> categoryServices = services[widget.category]!;
