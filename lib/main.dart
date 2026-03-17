@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:html' as html; // Only used for Flutter Web
 
 void main() => runApp(NombuBeautyApp());
 
@@ -122,10 +124,10 @@ class HomeScreen extends StatelessWidget {
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+            crossAxisCount: 2, // two squares per row
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
-            childAspectRatio: 1,
+            childAspectRatio: 1, // square
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -259,6 +261,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
+  // ------------------------- FIXED WHATSAPP -------------------------
   void sendWhatsAppRequest() async {
     if (selectedService == null) {
       ScaffoldMessenger.of(context)
@@ -294,11 +297,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
 
     message +=
-        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
-        'I will send my reference photo below.\n\nThank you.';
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-    if (await canLaunch(url)) await launch(url);
+
+    if (kIsWeb) {
+      html.window.open(url, '_blank'); // Open in new tab on web
+    } else {
+      if (await canLaunch(url)) await launch(url); // Mobile
+    }
   }
 
   @override
@@ -333,13 +340,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
               onChanged: (val) {
                 setState(() {
                   selectedService = val;
-                  selectedPrice =
-                      categoryServices.firstWhere((s) => s['name'] == val)['price'];
+                  selectedPrice = categoryServices
+                      .firstWhere((s) => s['name'] == val)['price'];
                 });
               },
             ),
             SizedBox(height: 16),
-
             if (requiresFullBooking)
               Row(
                 children: [
@@ -349,7 +355,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   Text('After-hours (+R100)'),
                 ],
               ),
-
             if (requiresFullBooking || isHairLaundry)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -366,9 +371,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                       : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
                 ),
               ),
-
             SizedBox(height: 20),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink.shade400,
