@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:html' as html; // Only used for Flutter Web
+import 'dart:html' as html;
 
 void main() => runApp(NombuBeautyApp());
 
@@ -92,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ------------------------- HOME SCREEN (Squares with Icons) -------------------------
+// ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -111,8 +111,8 @@ class HomeScreen extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'NOMBU Beauty',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
@@ -124,10 +124,10 @@ class HomeScreen extends StatelessWidget {
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // two squares per row
+            crossAxisCount: 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
-            childAspectRatio: 1, // square
+            childAspectRatio: 1,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -167,8 +167,7 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'],
-                        size: 50, color: Colors.pink.shade800),
+                    Icon(category['icon'], size: 50, color: Colors.pink.shade800),
                     SizedBox(height: 12),
                     Text(
                       category['name'],
@@ -261,23 +260,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
-  // ------------------------- FIXED WHATSAPP -------------------------
+  // ------------------------- FIXED WhatsApp -------------------------
   void sendWhatsAppRequest() async {
     if (selectedService == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Please select a service')));
       return;
-    }
-
-    if (requiresFullBooking && selectedTime != null) {
-      if (selectedTime!.hour < 8 || selectedTime!.hour > 18) {
-        if (!afterHours) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(
-                  'Selected time is outside operating hours. Please select "After-hours" option.')));
-          return;
-        }
-      }
     }
 
     int estimatedPrice = selectedPrice ?? 0;
@@ -302,9 +290,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
 
     if (kIsWeb) {
-      html.window.open(url, '_blank'); // Open in new tab on web
+      html.window.open(url, '_blank'); // open in new tab on web
     } else {
-      if (await canLaunch(url)) await launch(url); // Mobile
+      Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open WhatsApp')));
+      }
     }
   }
 
@@ -409,8 +403,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _authenticated = true;
       });
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Wrong password')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Wrong password')),
+      );
     }
   }
 
