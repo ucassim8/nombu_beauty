@@ -295,17 +295,21 @@ class _ServiceScreenState extends State<ServiceScreen> {
           'Date: $dateStr\nTime: $timeStr\n';
     }
 
+  
     message +=
-        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
-        'I will send my reference photo below.\n\nThank you.';
+    '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
+    'I will send my reference photo below.\n\nThank you.';
 
-    String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-    if (await canLaunch(url)) await launch(url);
-    url += '&v=${DateTime.now().millisecondsSinceEpoch}';
+// Encode the message
+String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeComponent(message)}';
 
+// Add a timestamp to force WhatsApp to refresh the text
+url += '&v=${DateTime.now().millisecondsSinceEpoch}';
+
+// Launch WhatsApp once
 if (await canLaunch(url)) {
   await launch(url);
-  }
+}
   
 
   @override
