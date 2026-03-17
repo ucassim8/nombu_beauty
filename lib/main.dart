@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
@@ -108,8 +109,8 @@ class HomeScreen extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'NOMBU Beauty',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.white),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
@@ -121,10 +122,10 @@ class HomeScreen extends StatelessWidget {
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // two squares per row
+            crossAxisCount: 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
-            childAspectRatio: 1, // square
+            childAspectRatio: 1,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -164,7 +165,8 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 50, color: Colors.pink.shade800),
+                    Icon(category['icon'],
+                        size: 50, color: Colors.pink.shade800),
                     SizedBox(height: 12),
                     Text(
                       category['name'],
@@ -185,7 +187,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
 
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
@@ -232,7 +233,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
   bool get isHairLaundry => widget.category == 'Hair Laundry';
 
-  // Pick date & time
   Future<void> pickDateTime() async {
     DateTime now = DateTime.now();
     final DateTime? date = await showDatePicker(
@@ -259,7 +259,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
-  // Send WhatsApp booking
   void sendWhatsAppRequest() async {
     if (selectedService == null) {
       ScaffoldMessenger.of(context)
@@ -294,19 +293,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
           'Date: $dateStr\nTime: $timeStr\n';
     }
 
-  
     message +=
-    '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
-    'I will send my reference photo below.\n\nThank you.';
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
+        'I will send my reference photo below.\n\nThank you.';
 
-// Encode the message
-String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-// Launch WhatsApp
-  if (await canLaunch(url)) {
-    await launch(url);
+    String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
+    if (await canLaunch(url)) await launch(url);
   }
-}  
-  
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> categoryServices = services[widget.category]!;
@@ -339,8 +333,8 @@ String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
               onChanged: (val) {
                 setState(() {
                   selectedService = val;
-                  selectedPrice = categoryServices
-                      .firstWhere((s) => s['name'] == val)['price'];
+                  selectedPrice =
+                      categoryServices.firstWhere((s) => s['name'] == val)['price'];
                 });
               },
             ),
@@ -395,7 +389,6 @@ String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
   }
 }
 
-
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
@@ -413,9 +406,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _authenticated = true;
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Wrong password')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Wrong password')));
     }
   }
 
@@ -480,9 +472,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ],
                     ),
                     onTap: () {
-                      
+                      if (req.photo != null) {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text('Reference Photo'),
+                            content: Image.file(req.photo!),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Close'))
+                            ],
+                          ),
+                        );
+                      }
                     },
-          
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
 
 // ------------------------- BOOKING MODEL -------------------------
 class BookingRequest {
@@ -490,6 +501,7 @@ class BookingRequest {
   final DateTime date;
   final TimeOfDay time;
   final bool afterHours;
+  final File? photo;
   String status; // Pending / Confirmed / Declined
 
   BookingRequest({
@@ -497,6 +509,7 @@ class BookingRequest {
     required this.date,
     required this.time,
     required this.afterHours,
+    this.photo,
     this.status = 'Pending',
   });
 }
