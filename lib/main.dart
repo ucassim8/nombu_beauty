@@ -297,7 +297,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
     message +=
         '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
-        'Please send your reference photo via WhatsApp.\n\nThank you.';
+        'I will send my reference photo below.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
     if (await canLaunch(url)) await launch(url);
