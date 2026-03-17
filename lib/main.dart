@@ -3,8 +3,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'dart:async';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:html' as html;
 
 void main() => runApp(NombuBeautyApp());
 
@@ -92,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ------------------------- HOME SCREEN -------------------------
+// ------------------------- HOME SCREEN (Squares with Icons) -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -228,12 +226,22 @@ class _ServiceScreenState extends State<ServiceScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
 
+  // --- Location selection ---
+  String? selectedProvince;
+  String? selectedLocation;
+
+  final Map<String, List<String>> provinceLocations = {
+    'Pretoria': ['Montana', 'Hammanskraal'],
+    'Limpopo': ['Polokwane'],
+  };
+
   final String whatsappNumber = '+27672412217';
 
   bool get requiresFullBooking =>
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
   bool get isHairLaundry => widget.category == 'Hair Laundry';
 
+  // Pick date & time
   Future<void> pickDateTime() async {
     DateTime now = DateTime.now();
     final DateTime? date = await showDatePicker(
@@ -260,7 +268,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
-  // ------------------------- FIXED WhatsApp -------------------------
+  // Send WhatsApp booking
   void sendWhatsAppRequest() async {
     if (selectedService == null) {
       ScaffoldMessenger.of(context)
@@ -268,12 +276,30 @@ class _ServiceScreenState extends State<ServiceScreen> {
       return;
     }
 
+    if (selectedProvince == null || selectedLocation == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please select a location')));
+      return;
+    }
+
+    if (requiresFullBooking && selectedTime != null) {
+      if (selectedTime!.hour < 8 || selectedTime!.hour > 18) {
+        if (!afterHours) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  'Selected time is outside operating hours. Please select "After-hours" option.')));
+          return;
+        }
+      }
+    }
+
     int estimatedPrice = selectedPrice ?? 0;
     if (afterHours) estimatedPrice += 100;
 
     String message =
         'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
-        'Service: $selectedService\nCategory: ${widget.category}\n';
+        'Service: $selectedService\nCategory: ${widget.category}\n'
+        'Location: $selectedLocation\n';
 
     if (requiresFullBooking || isHairLaundry) {
       String dateStr =
@@ -285,21 +311,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
 
     message +=
-        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nThank you.';
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\n'
+        'I will send my reference photo below.\n\nThank you.';
 
     String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-
-    if (kIsWeb) {
-      html.window.open(url, '_blank'); // open in new tab on web
-    } else {
-      Uri uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not open WhatsApp')));
-      }
-    }
+    if (await canLaunch(url)) await launch(url);
   }
 
   @override
@@ -315,6 +331,59 @@ class _ServiceScreenState extends State<ServiceScreen> {
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
+            // Province Dropdown
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Select Province',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              value: selectedProvince,
+              items: provinceLocations.keys
+                  .map((prov) => DropdownMenuItem<String>(
+                        value: prov,
+                        child: Text(prov),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  selectedProvince = val;
+                  selectedLocation = null;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+
+            // Location Dropdown
+            if (selectedProvince != null)
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Select Location',
+                  filled: true,
+                  fillColor: Colors.pink.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                value: selectedLocation,
+                items: provinceLocations[selectedProvince]!
+                    .map((loc) => DropdownMenuItem<String>(
+                          value: loc,
+                          child: Text(loc),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    selectedLocation = val;
+                  });
+                },
+              ),
+            SizedBox(height: 16),
+
+            // Service Dropdown
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select a service',
@@ -340,6 +409,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
               },
             ),
             SizedBox(height: 16),
+
             if (requiresFullBooking)
               Row(
                 children: [
@@ -349,6 +419,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   Text('After-hours (+R100)'),
                 ],
               ),
+
             if (requiresFullBooking || isHairLaundry)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -365,7 +436,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
                       : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
                 ),
               ),
+
             SizedBox(height: 20),
+
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink.shade400,
