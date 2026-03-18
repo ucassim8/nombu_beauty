@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
-void main() {
-  runApp(NombuBeautyApp());
-}
+void main() => runApp(NombuBeautyApp());
 
 class NombuBeautyApp extends StatelessWidget {
   @override
@@ -18,18 +16,81 @@ class NombuBeautyApp extends StatelessWidget {
         fontFamily: 'Poppins',
       ),
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: SplashScreen(),
     );
   }
 }
 
-// ------------------- HOME SCREEN -------------------
-class HomeScreen extends StatefulWidget {
+// ------------------------- SPLASH SCREEN -------------------------
+class SplashScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 2));
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
+    _controller.forward();
+
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (_) => HomeScreen()));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.pink.shade100, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: FadeTransition(
+            opacity: _animation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/logo.jpg', width: 120, height: 120),
+                SizedBox(height: 16),
+                Text(
+                  'NOMBU Beauty',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.pink.shade800,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Your beauty, your way 🌸',
+                  style: TextStyle(fontSize: 14, color: Colors.pink.shade400),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------------- HOME SCREEN -------------------------
+class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
     {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
@@ -41,8 +102,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('NOMBU Beauty'),
+        title: Row(
+          children: [
+            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
+            SizedBox(width: 8),
+            Text(
+              'NOMBU Beauty',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
         backgroundColor: Colors.pink.shade400,
+        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -60,15 +132,17 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 if (category['name'] == 'Admin Dashboard') {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AdminDashboard()));
+                    context,
+                    MaterialPageRoute(builder: (_) => AdminDashboard()),
+                  );
                 } else {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ServiceScreen(category: category['name'])));
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ServiceScreen(category: category['name']),
+                    ),
+                  );
                 }
               },
               child: Container(
@@ -96,9 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       category['name'],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.pink.shade700),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.pink.shade700,
+                      ),
                     ),
                   ],
                 ),
@@ -111,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ------------------- SERVICE SCREEN -------------------
+// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -144,133 +219,298 @@ class _ServiceScreenState extends State<ServiceScreen> {
     ],
   };
 
+  // ------------------------- User Info -------------------------
+  String? name;
+  String? phone;
+
   String? selectedService;
-  List<Map<String, dynamic>> categoryServices = [];
+  int? selectedPrice;
+  bool afterHours = false;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  // --- Location selection ---
+  String? selectedProvince;
+  String? selectedLocation;
+
+  final Map<String, List<String>> provinceLocations = {
+    'Pretoria': ['Montana', 'Hammanskraal'],
+    'Limpopo': ['Polokwane'],
+  };
+
+  final String whatsappNumber = '+27672412217';
+
+  // ------------------------- Blocked Dates -------------------------
+  List<DateTime> blockedDates = [];
+
+  bool get requiresFullBooking =>
+      (widget.category == 'Hair Services' || widget.category == 'Makeup');
+  bool get isHairLaundry => widget.category == 'Hair Laundry';
 
   @override
   void initState() {
     super.initState();
-    categoryServices = services[widget.category] ?? [];
-    _loadSelectedService();
+    loadUserInfo();
   }
 
-  _loadSelectedService() async {
+  Future<void> loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedService = prefs.getString('selectedService');
+      name = prefs.getString('name') ?? '';
+      phone = prefs.getString('phone') ?? '';
     });
   }
 
-  _saveSelectedService(String service) async {
+  Future<void> saveUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedService', service);
+    prefs.setString('name', name ?? '');
+    prefs.setString('phone', phone ?? '');
   }
 
-  _sendWhatsApp() async {
-    if (selectedService == null) return;
+  // Pick date & time
+  Future<void> pickDateTime() async {
+    DateTime now = DateTime.now();
+    final DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now,
+      lastDate: DateTime(now.year + 1),
+      selectableDayPredicate: (d) {
+        for (var b in blockedDates) {
+          if (d.year == b.year && d.month == b.month && d.day == b.day) {
+            return false;
+          }
+        }
+        return true;
+      },
+    );
 
-    final message = "I'd like to request a booking.\n\n"
-        "Service: $selectedService\n"
-        "Category: ${widget.category}\n"
-        "Name: [Enter Name]\n"
-        "Self/Other: [Self or Someone else]\n"
-        "Number: [Enter Number]";
-    final url = "https://wa.me/[NUMBER]?text=${Uri.encodeComponent(message)}";
+    if (date != null) {
+      TimeOfDay? time;
+      if (requiresFullBooking || isHairLaundry) {
+        time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.now(),
+        );
+        if (time == null) return;
+      }
 
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not launch WhatsApp')));
+      setState(() {
+        selectedDate = date;
+        selectedTime = time ?? TimeOfDay(hour: 0, minute: 0);
+      });
     }
+  }
+
+  // Send WhatsApp booking
+  void sendWhatsAppRequest() async {
+    if (name == null || name!.isEmpty || phone == null || phone!.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please enter your name and phone')));
+      return;
+    }
+    if (selectedService == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please select a service')));
+      return;
+    }
+    if (selectedProvince == null || selectedLocation == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please select a location')));
+      return;
+    }
+
+    int estimatedPrice = selectedPrice ?? 0;
+    if (afterHours) estimatedPrice += 100;
+
+    String message =
+        'Hello NOMBU Beauty 🌸\n\nName: $name\nPhone: $phone\n'
+        'Service: $selectedService\nCategory: ${widget.category}\n'
+        'Location: $selectedLocation\n';
+
+    if (requiresFullBooking || isHairLaundry) {
+      String dateStr =
+          '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}';
+      String timeStr =
+          '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}';
+      message += (isHairLaundry ? 'Drop-off ' : '') +
+          'Date: $dateStr\nTime: $timeStr\n';
+    }
+
+    message +=
+        '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nThank you.';
+
+    String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
+    if (await canLaunch(url)) await launch(url);
+
+    saveUserInfo();
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> categoryServices = services[widget.category]!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category),
         backgroundColor: Colors.pink.shade400,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
         child: Column(
           children: [
+            // Name & Phone
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Name',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              controller: TextEditingController(text: name),
+              onChanged: (val) => name = val,
+            ),
+            SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Phone',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              controller: TextEditingController(text: phone),
+              onChanged: (val) => phone = val,
+              keyboardType: TextInputType.phone,
+            ),
+            SizedBox(height: 16),
+
+            // Province Dropdown
             DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Select Province',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              value: selectedProvince,
+              items: provinceLocations.keys
+                  .map((prov) => DropdownMenuItem<String>(
+                        value: prov,
+                        child: Text(prov),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  selectedProvince = val;
+                  selectedLocation = null;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+
+            // Location Dropdown
+            if (selectedProvince != null)
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Select Location',
+                  filled: true,
+                  fillColor: Colors.pink.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                value: selectedLocation,
+                items: provinceLocations[selectedProvince]!
+                    .map((loc) => DropdownMenuItem<String>(
+                          value: loc,
+                          child: Text(loc),
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    selectedLocation = val;
+                  });
+                },
+              ),
+            SizedBox(height: 16),
+
+            // Service Dropdown
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Select a service',
+                filled: true,
+                fillColor: Colors.pink.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               value: selectedService,
               items: categoryServices
                   .map((s) => DropdownMenuItem<String>(
-                        value: s['name'] as String,
+                        value: s['name'],
                         child: Text('${s['name']} - R${s['price']}'),
                       ))
                   .toList(),
               onChanged: (val) {
                 setState(() {
                   selectedService = val;
-                  if (val != null) _saveSelectedService(val);
+                  selectedPrice = categoryServices
+                      .firstWhere((s) => s['name'] == val)['price'];
                 });
               },
-              decoration: InputDecoration(labelText: 'Service'),
             ),
+            SizedBox(height: 16),
+
+            if (requiresFullBooking)
+              Row(
+                children: [
+                  Checkbox(
+                      value: afterHours,
+                      onChanged: (val) => setState(() => afterHours = val!)),
+                  Text('After-hours (+R100)'),
+                ],
+              ),
+
+            if (requiresFullBooking || isHairLaundry)
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink.shade300,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: pickDateTime,
+                child: Text(
+                  selectedDate == null
+                      ? (isHairLaundry
+                          ? 'Select Drop-off Date & Time'
+                          : 'Select Date & Time')
+                      : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+                ),
+              ),
+
             SizedBox(height: 20),
+
             ElevatedButton(
-              onPressed: _sendWhatsApp,
-              child: Text('Send Booking via WhatsApp'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink.shade400,
+                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: sendWhatsAppRequest,
+              child: Text(
+                'Send Booking Request via WhatsApp',
+                style: TextStyle(fontSize: 16),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ------------------- ADMIN DASHBOARD -------------------
-class AdminDashboard extends StatefulWidget {
-  @override
-  _AdminDashboardState createState() => _AdminDashboardState();
-}
-
-class _AdminDashboardState extends State<AdminDashboard> {
-  final TextEditingController _passwordController = TextEditingController();
-  bool _authenticated = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Admin Dashboard'),
-        backgroundColor: Colors.pink.shade400,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: !_authenticated
-            ? Column(
-                children: [
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Password'),
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_passwordController.text == 'admin123') {
-                        setState(() => _authenticated = true);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Wrong password')));
-                      }
-                    },
-                    child: Text('Login'),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink.shade400),
-                  ),
-                ],
-              )
-            : Center(child: Text('Welcome Admin!')),
       ),
     );
   }
