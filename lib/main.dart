@@ -6,7 +6,6 @@ import 'dart:async';
 
 void main() => runApp(NombuBeautyApp());
 
-// ------------------------- APP -------------------------
 class NombuBeautyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -41,13 +40,12 @@ class _SplashScreenState extends State<SplashScreen>
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
     _controller.forward();
 
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-      );
+          context, MaterialPageRoute(builder: (_) => HomeScreen()));
     });
   }
 
@@ -92,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ------------------------- HOME SCREEN -------------------------
+// ------------------------- HOME SCREEN (Squares with Icons) -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -111,7 +109,8 @@ class HomeScreen extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'NOMBU Beauty',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
         ),
@@ -259,6 +258,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
         );
         if (time == null) return;
       }
+
       setState(() {
         selectedDate = date;
         selectedTime = time ?? TimeOfDay(hour: 0, minute: 0);
@@ -267,13 +267,27 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 
   void sendWhatsAppRequest() async {
-    if (selectedService == null ||
-        selectedProvince == null ||
-        selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all required fields')),
-      );
+    if (selectedService == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please select a service')));
       return;
+    }
+
+    if (selectedProvince == null || selectedLocation == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Please select a location')));
+      return;
+    }
+
+    if (requiresFullBooking && selectedTime != null) {
+      if (selectedTime!.hour < 8 || selectedTime!.hour > 18) {
+        if (!afterHours) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  'Selected time is outside operating hours. Please select "After-hours" option.')));
+          return;
+        }
+      }
     }
 
     int estimatedPrice = selectedPrice ?? 0;
@@ -325,14 +339,22 @@ class _ServiceScreenState extends State<ServiceScreen> {
               ),
               value: selectedProvince,
               items: provinceLocations.keys
-                  .map((prov) => DropdownMenuItem(value: prov, child: Text(prov)))
+                  .map<DropdownMenuItem<String>>(
+                    (prov) => DropdownMenuItem<String>(
+                      value: prov,
+                      child: Text(prov),
+                    ),
+                  )
                   .toList(),
-              onChanged: (val) => setState(() {
-                selectedProvince = val;
-                selectedLocation = null;
-              }),
+              onChanged: (val) {
+                setState(() {
+                  selectedProvince = val;
+                  selectedLocation = null;
+                });
+              },
             ),
             SizedBox(height: 16),
+
             if (selectedProvince != null)
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
@@ -345,11 +367,21 @@ class _ServiceScreenState extends State<ServiceScreen> {
                 ),
                 value: selectedLocation,
                 items: provinceLocations[selectedProvince]!
-                    .map((loc) => DropdownMenuItem(value: loc, child: Text(loc)))
+                    .map<DropdownMenuItem<String>>(
+                      (loc) => DropdownMenuItem<String>(
+                        value: loc,
+                        child: Text(loc),
+                      ),
+                    )
                     .toList(),
-                onChanged: (val) => setState(() => selectedLocation = val),
+                onChanged: (val) {
+                  setState(() {
+                    selectedLocation = val;
+                  });
+                },
               ),
             SizedBox(height: 16),
+
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
                 labelText: 'Select a service',
@@ -361,8 +393,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
               ),
               value: selectedService,
               items: categoryServices
-                  .map((s) => DropdownMenuItem(
-                      value: s['name'], child: Text('${s['name']} - R${s['price']}')))
+                  .map<DropdownMenuItem<String>>(
+                    (s) => DropdownMenuItem<String>(
+                      value: s['name'],
+                      child: Text('${s['name']} - R${s['price']}'),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 setState(() {
@@ -373,16 +409,17 @@ class _ServiceScreenState extends State<ServiceScreen> {
               },
             ),
             SizedBox(height: 16),
+
             if (requiresFullBooking)
               Row(
                 children: [
                   Checkbox(
-                    value: afterHours,
-                    onChanged: (val) => setState(() => afterHours = val!),
-                  ),
+                      value: afterHours,
+                      onChanged: (val) => setState(() => afterHours = val!)),
                   Text('After-hours (+R100)'),
                 ],
               ),
+
             if (requiresFullBooking || isHairLaundry)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -391,11 +428,17 @@ class _ServiceScreenState extends State<ServiceScreen> {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: pickDateTime,
-                child: Text(selectedDate == null
-                    ? (isHairLaundry ? 'Select Drop-off Date & Time' : 'Select Date & Time')
-                    : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}'),
+                child: Text(
+                  selectedDate == null
+                      ? (isHairLaundry
+                          ? 'Select Drop-off Date & Time'
+                          : 'Select Date & Time')
+                      : 'Selected: ${selectedDate!.day}/${selectedDate!.month} ${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+                ),
               ),
+
             SizedBox(height: 20),
+
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink.shade400,
@@ -404,7 +447,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
                     borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: sendWhatsAppRequest,
-              child: Text('Send Booking Request via WhatsApp', style: TextStyle(fontSize: 16)),
+              child: Text(
+                'Send Booking Request via WhatsApp',
+                style: TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),
@@ -426,9 +472,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _checkPassword() {
     if (_passwordController.text == '2478') {
-      setState(() => _authenticated = true);
+      setState(() {
+        _authenticated = true;
+      });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Wrong password')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Wrong password')),
+      );
     }
   }
 
@@ -464,7 +514,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 BookingRequest req = bookingRequests[index];
                 return Card(
                   margin: EdgeInsets.all(8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   elevation: 5,
                   child: ListTile(
                     title: Text('${req.service} (${req.status})'),
@@ -475,11 +526,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       children: [
                         IconButton(
                           icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () => setState(() => req.status = 'Confirmed'),
+                          onPressed: () {
+                            setState(() {
+                              req.status = 'Confirmed';
+                            });
+                          },
                         ),
                         IconButton(
                           icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () => setState(() => req.status = 'Declined'),
+                          onPressed: () {
+                            setState(() {
+                              req.status = 'Declined';
+                            });
+                          },
                         ),
                       ],
                     ),
@@ -493,7 +552,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             actions: [
                               TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: Text('Close')),
+                                  child: Text('Close'))
                             ],
                           ),
                         );
@@ -514,7 +573,7 @@ class BookingRequest {
   final TimeOfDay time;
   final bool afterHours;
   final File? photo;
-  String status;
+  String status; // Pending / Confirmed / Declined
 
   BookingRequest({
     required this.service,
