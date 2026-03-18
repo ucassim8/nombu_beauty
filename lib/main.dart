@@ -23,6 +23,7 @@ class NombuBeautyApp extends StatelessWidget {
   }
 }
 
+// ------------------- HOME SCREEN -------------------
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -91,12 +92,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Icon(category['icon'], size: 50, color: Colors.pink.shade800),
                     SizedBox(height: 12),
-                    Text(category['name'],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.pink.shade700)),
+                    Text(
+                      category['name'],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.pink.shade700),
+                    ),
                   ],
                 ),
               ),
@@ -108,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+// ------------------- SERVICE SCREEN -------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -141,113 +145,81 @@ class _ServiceScreenState extends State<ServiceScreen> {
   };
 
   String? selectedService;
-  String? selectedLocation;
-  String? selectedPayment;
-  final nameController = TextEditingController();
-  final phoneController = TextEditingController();
+  List<Map<String, dynamic>> categoryServices = [];
 
-  final List<String> locations = ['Pretoria', 'Limpopo'];
-  final Map<String, List<String>> locationOptions = {
-    'Pretoria': ['Montana', 'Hamanskraal'],
-    'Limpopo': ['Polokwane'],
-  };
+  @override
+  void initState() {
+    super.initState();
+    categoryServices = services[widget.category] ?? [];
+    _loadSelectedService();
+  }
 
-  final List<String> paymentOptions = ['Card', 'Cash', 'E-wallet'];
+  _loadSelectedService() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedService = prefs.getString('selectedService');
+    });
+  }
 
-  Future<void> submitBooking() async {
-    if (nameController.text.isEmpty ||
-        phoneController.text.isEmpty ||
-        selectedService == null ||
-        selectedLocation == null ||
-        selectedPayment == null) {
+  _saveSelectedService(String service) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedService', service);
+  }
+
+  _sendWhatsApp() async {
+    if (selectedService == null) return;
+
+    final message = "I'd like to request a booking.\n\n"
+        "Service: $selectedService\n"
+        "Category: ${widget.category}\n"
+        "Name: [Enter Name]\n"
+        "Self/Other: [Self or Someone else]\n"
+        "Number: [Enter Number]";
+    final url = "https://wa.me/[NUMBER]?text=${Uri.encodeComponent(message)}";
+
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill all required fields')));
-      return;
-    }
-
-    final booking = {
-      'name': nameController.text,
-      'phone': phoneController.text,
-      'service': selectedService,
-      'location': selectedLocation,
-      'payment': selectedPayment,
-    };
-
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> bookings =
-        prefs.getStringList('bookings') ?? <String>[];
-    bookings.add(jsonEncode(booking));
-    await prefs.setStringList('bookings', bookings);
-
-    final message =
-        "Hi, I'd like to request a booking.\n\nName: ${nameController.text}\nService: $selectedService\nLocation: $selectedLocation\nPayment: $selectedPayment";
-    final url = Uri.parse("https://wa.me/${phoneController.text}?text=${Uri.encodeFull(message)}");
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
+          SnackBar(content: Text('Could not launch WhatsApp')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final categoryServices = services[widget.category] ?? [];
-    final availableLocations = selectedLocation == null
-        ? locations
-        : locationOptions[selectedLocation!] ?? [];
-
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(
+        title: Text(widget.category),
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
+        child: Column(
           children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            SizedBox(height: 12),
-            TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: 'Phone number'),
-            ),
-            SizedBox(height: 12),
             DropdownButtonFormField<String>(
               value: selectedService,
               items: categoryServices
-                  .map((s) => DropdownMenuItem(
-                      value: s['name'],
-                      child: Text('${s['name']} - R${s['price']}')))
+                  .map((s) => DropdownMenuItem<String>(
+                        value: s['name'] as String,
+                        child: Text('${s['name']} - R${s['price']}'),
+                      ))
                   .toList(),
-              onChanged: (val) => setState(() => selectedService = val),
+              onChanged: (val) {
+                setState(() {
+                  selectedService = val;
+                  if (val != null) _saveSelectedService(val);
+                });
+              },
               decoration: InputDecoration(labelText: 'Service'),
-            ),
-            SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: selectedLocation,
-              items: (selectedLocation == null
-                      ? locations
-                      : locationOptions[selectedLocation!] ?? [])
-                  .map((loc) =>
-                      DropdownMenuItem(value: loc, child: Text(loc)))
-                  .toList(),
-              onChanged: (val) => setState(() => selectedLocation = val),
-              decoration: InputDecoration(labelText: 'Location'),
-            ),
-            SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: selectedPayment,
-              items: paymentOptions
-                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                  .toList(),
-              onChanged: (val) => setState(() => selectedPayment = val),
-              decoration: InputDecoration(labelText: 'Payment method'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: submitBooking,
-              child: Text('Send Booking Request via WhatsApp'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-            )
+              onPressed: _sendWhatsApp,
+              child: Text('Send Booking via WhatsApp'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink.shade400,
+              ),
+            ),
           ],
         ),
       ),
@@ -255,6 +227,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
+// ------------------- ADMIN DASHBOARD -------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -263,95 +236,42 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _passwordController = TextEditingController();
   bool _authenticated = false;
-  List<Map<String, dynamic>> bookingRequests = [];
-
-  Future<void> loadBookings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> stored = prefs.getStringList('bookings') ?? [];
-    setState(() {
-      bookingRequests =
-          stored.map((b) => jsonDecode(b) as Map<String, dynamic>).toList();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadBookings();
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_authenticated) {
-      return Scaffold(
-        appBar: AppBar(title: Text('Admin Login'), backgroundColor: Colors.pink.shade400),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(children: [
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Enter password'),
-            ),
-            SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {
-                if (_passwordController.text == 'admin123') {
-                  setState(() {
-                    _authenticated = true;
-                  });
-                }
-              },
-              child: Text('Login'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-            )
-          ]),
-        ),
-      );
-    }
-
     return Scaffold(
-      appBar: AppBar(title: Text('Admin Dashboard'), backgroundColor: Colors.pink.shade400),
-      body: bookingRequests.isEmpty
-          ? Center(child: Text('No bookings yet'))
-          : ListView.builder(
-              itemCount: bookingRequests.length,
-              itemBuilder: (context, index) {
-                final req = bookingRequests[index];
-                return Card(
-                  margin: EdgeInsets.all(8),
-                  child: ListTile(
-                    title: Text('${req['name']} - ${req['service']}'),
-                    subtitle: Text('Location: ${req['location']}\nPayment: ${req['payment']}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.check, color: Colors.green),
-                          onPressed: () async {
-                            final url = Uri.parse(
-                                'https://wa.me/${req['phone']}?text=${Uri.encodeFull("Hi ${req['name']}, your booking for ${req['service']} has been accepted.")}');
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.close, color: Colors.red),
-                          onPressed: () async {
-                            final url = Uri.parse(
-                                'https://wa.me/${req['phone']}?text=${Uri.encodeFull("Hi ${req['name']}, unfortunately your booking for ${req['service']} has been declined.")}');
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+      appBar: AppBar(
+        title: Text('Admin Dashboard'),
+        backgroundColor: Colors.pink.shade400,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: !_authenticated
+            ? Column(
+                children: [
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'Password'),
                   ),
-                );
-              },
-            ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_passwordController.text == 'admin123') {
+                        setState(() => _authenticated = true);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Wrong password')));
+                      }
+                    },
+                    child: Text('Login'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink.shade400),
+                  ),
+                ],
+              )
+            : Center(child: Text('Welcome Admin!')),
+      ),
     );
   }
 }
