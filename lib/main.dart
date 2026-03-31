@@ -308,41 +308,85 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 
   Future<void> saveBookingToFirebase() async {
-    if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please complete all fields')));
-      return;
-    }
-    if (requiresFullBooking && selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select date/time')));
-      return;
-    }
-
-    BookingRequest booking = BookingRequest(
-      service: selectedService!,
-      category: widget.category,
-      date: selectedDate ?? DateTime.now(),
-      time: selectedTime ?? TimeOfDay(hour: 0, minute: 0),
-      afterHours: afterHours,
-      clientName: clientName!,
-      phoneNumber: phoneNumber!,
-      location: selectedLocation!,
-      price: selectedPrice ?? 0,
+  if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please complete all fields')),
     );
-    sendWhatsAppRequest(booking);
-    
-    await FirebaseFirestore.instance.collection('bookings').add({
-      'service': booking.service,
-      'category': booking.category,
-      'date': booking.date.toIso8601String(),
-      'time': '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}',
-      'afterHours': booking.afterHours,
-      'clientName': booking.clientName,
-      'phoneNumber': booking.phoneNumber,
-      'location': booking.location,
-      'price': booking.price,
-      'status': booking.status,
-      'timestamp': FieldValue.serverTimestamp(),
+    return;
+  }
+
+  if ((widget.category == 'Hair Services' || widget.category == 'Makeup' || widget.category == 'Hair Laundry') && selectedDate == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please select date/time')),
+    );
+    return;
+  }
+
+  BookingRequest booking = BookingRequest(
+    service: selectedService!,
+    category: widget.category,
+    date: selectedDate ?? DateTime.now(),
+    time: selectedTime ?? TimeOfDay(hour: 0, minute: 0),
+    afterHours: afterHours,
+    clientName: clientName!,
+    phoneNumber: phoneNumber!,
+    location: selectedLocation!,
+    price: selectedPrice ?? 0,
+  );
+
+  // Send WhatsApp first
+  try {
+    await sendWhatsAppRequest(booking);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to open WhatsApp')),
+    );
+    return;
+  }
+
+  // Then save to Firebase
+  await FirebaseFirestore.instance.collection('bookings').add({
+    'service': booking.service,
+    'category': booking.category,
+    'date': booking.date.toIso8601String(),
+    'time': '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}',
+    'afterHours': booking.afterHours,
+    'clientName': booking.clientName,
+    'phoneNumber': booking.phoneNumber,
+    'location': booking.location,
+    'price': booking.price,
+    'status': booking.status,
+    'timestamp': FieldValue.serverTimestamp(),
   });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Booking saved and WhatsApp request sent!')),
+  );
+}
+
+Future<void> sendWhatsAppRequest(BookingRequest booking) async {
+  int estimatedPrice = booking.price;
+  if (booking.afterHours) estimatedPrice += 100;
+
+  String message =
+      'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
+      'Name: ${booking.clientName}\nService: ${booking.service}\nCategory: ${booking.category}\nLocation: ${booking.location}\n';
+
+  if ((widget.category == 'Hair Services' || widget.category == 'Makeup' || widget.category == 'Hair Laundry')) {
+    String dateStr = '${booking.date.day}/${booking.date.month}/${booking.date.year}';
+    String timeStr = '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}';
+    message += (widget.category == 'Hair Laundry' ? 'Drop-off ' : '') + 'Date: $dateStr\nTime: $timeStr\n';
+  }
+
+  message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.';
+
+  String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch WhatsApp';
+  }
+}
 
 
   void sendWhatsAppRequest(BookingRequest booking) async {
