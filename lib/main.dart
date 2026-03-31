@@ -312,14 +312,22 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 
   Future<void> saveBookingToFirebase() async {
-  if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
+  // Validation
+  if (selectedService == null ||
+      clientName == null ||
+      phoneNumber == null ||
+      selectedProvince == null ||
+      selectedLocation == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Please complete all fields')),
     );
     return;
   }
 
-  if ((widget.category == 'Hair Services' || widget.category == 'Makeup' || widget.category == 'Hair Laundry') && selectedDate == null) {
+  if ((widget.category == 'Hair Services' ||
+       widget.category == 'Makeup' ||
+       widget.category == 'Hair Laundry') &&
+      selectedDate == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Please select date/time')),
     );
@@ -336,38 +344,38 @@ class _ServiceScreenState extends State<ServiceScreen> {
     phoneNumber: phoneNumber!,
     location: selectedLocation!,
     price: selectedPrice ?? 0,
+    status: 'Pending', // always set
   );
 
-  // Send WhatsApp first
   try {
+    // 1️⃣ Save to Firestore first
+    await FirebaseFirestore.instance.collection('bookings').add({
+      'service': booking.service,
+      'category': booking.category,
+      'date': booking.date.toIso8601String(),
+      'time': '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}',
+      'afterHours': booking.afterHours,
+      'clientName': booking.clientName,
+      'phoneNumber': booking.phoneNumber,
+      'location': booking.location,
+      'price': booking.price,
+      'status': booking.status,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    // 2️⃣ Open WhatsApp afterwards
     await sendWhatsAppRequest(booking);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Booking saved and WhatsApp opened!')),
+    );
+
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to open WhatsApp')),
+      SnackBar(content: Text('Error saving booking: $e')),
     );
-    return;
   }
-
-  // Then save to Firebase
-  await FirebaseFirestore.instance.collection('bookings').add({
-    'service': booking.service,
-    'category': booking.category,
-    'date': booking.date.toIso8601String(),
-    'time': '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}',
-    'afterHours': booking.afterHours,
-    'clientName': booking.clientName,
-    'phoneNumber': booking.phoneNumber,
-    'location': booking.location,
-    'price': booking.price,
-    'status': booking.status,
-    'timestamp': FieldValue.serverTimestamp(),
-  });
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Booking saved and WhatsApp request sent!')),
-  );
-}
-
+  }
 Future<void> sendWhatsAppRequest(BookingRequest booking) async {
   int estimatedPrice = booking.price;
   if (booking.afterHours) estimatedPrice += 100;
