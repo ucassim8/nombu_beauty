@@ -493,18 +493,13 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () async {
-  try {
-    await sendWhatsAppRequest(booking);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('WhatsApp opened successfully!')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to open WhatsApp: $e')),
-    );
-  }
+  await saveBookingToFirebase();
+
+  // Optional: show a SnackBar confirming action (though saveBookingToFirebase already shows one)
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('WhatsApp opened successfully!')),
+  );
 },
-),              
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
