@@ -401,7 +401,7 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text('WhatsApp opened successfully!')),
   );
-},
+}
 
   @override
   Widget build(BuildContext context) {
