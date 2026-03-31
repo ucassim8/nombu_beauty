@@ -501,13 +501,27 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
   );
 },
      child: Text('Send Booking via WhatsApp'),
-),         
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+} // <-- End of _ServiceScreenState
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
 }
-
+),
+      ),
+    );
+  }
+} // <-- this closes _ServiceScreenState),
+      ),
+    );
+  }
+} // <-- this closes _ServiceScreenState
 class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _passwordController = TextEditingController();
   bool _authenticated = false;
