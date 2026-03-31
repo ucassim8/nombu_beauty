@@ -698,43 +698,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   // ---------------- APPROVE BOOKING + WHATSAPP ----------------
-  Future<void> approveBooking(DocumentSnapshot booking) async {
-    await FirebaseFirestore.instance
-        .collection('bookings')
-        .doc(booking.id)
-        .update({'status': 'Approved'});
+  Future<void> requestPayment(DocumentSnapshot booking) async {
+  // 1️⃣ Update Firestore first
+  await FirebaseFirestore.instance
+      .collection('bookings')
+      .doc(booking.id)
+      .update({
+    'status': 'Approved',
+    'timestamp': FieldValue.serverTimestamp(),
+  });
 
-    String phone = booking['phoneNumber'];
-    String message =
-        'Hello ${booking['clientName']} 🌸\n\n'
-        'Your booking has been approved!\n\n'
-        'Service: ${booking['service']}\n'
-        'Date: ${booking['date']}\n'
-        'Time: ${booking['time']}\n'
-        'Price: R${booking['price']}\n\n'
-        'Deposit: R100\n\n'
-        'Please make payment via EFT:\n'
-        'Capitec\n'
-        'Mrs K Siwela\n'
-        '1867785194\n'
-        'Savings\n\n'
-        'Thank you 💗';
+  // 2️⃣ Send WhatsApp
+  String phone = booking['phoneNumber'];
+  String message =
+      'Hello ${booking['clientName']} 🌸\n\n'
+      'Your booking has been confirmed!\n\n'
+      'Service: ${booking['service']}\n'
+      'Date: ${booking['date']}\n'
+      'Time: ${booking['time']}\n'
+      'Price: R${booking['price']}\n\n'
+      'Deposit: R100\n\n'
+      'Please make payment via EFT:\n'
+      'Capitec\n'
+      'Mrs K Siwela\n'
+      '1867785194\n'
+      'Savings\n\n'
+      'Thank you 💗';
 
-    final Uri whatsappUri =
-        Uri.parse('https://wa.me/$phone?text=${Uri.encodeFull(message)}');
+  String url = 'https://wa.me/$phone?text=${Uri.encodeFull(message)}';
 
-    // Web
-    if (kIsWeb) {
-      js.context.callMethod('open', [whatsappUri.toString()]);
-      return;
-    }
-
-    // Mobile
-    if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open WhatsApp')),
-      );
-    }
+  if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Could not open WhatsApp')),
+    );
+  }
   }
 
   // ---------------- CANCEL BOOKING ----------------
