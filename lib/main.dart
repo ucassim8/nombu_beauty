@@ -396,12 +396,12 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
 
   final Uri whatsappUri = Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
 
-  if (kIsWeb) {
-    // Open in new browser tab
-    // ignore: undefined_prefixed_name
-    js.context.callMethod('open', [whatsappUri.toString()]);
-    return;
-  }
+  import 'dart:html' as html;
+
+if (kIsWeb) {
+  html.window.open(whatsappUri.toString(), '_blank');
+  return;
+}
 
   // Mobile
   if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
