@@ -86772,7 +86772,7 @@ if(p==="Hair Services"||p==="Makeup"||p==="Hair Laundry"){n=a.c
 m=a.d
 l=B.d.k0(B.e.k(m.b),2,"0")
 p=p==="Hair Laundry"?"Drop-off ":""
-o+=p+("Date: "+(""+A.cw(n)+"/"+A.bu(n)+"/"+A.b8(n))+"\nTime: "+(""+m.a+":"+l)+"\n")}k=A.kg("https://wa.me/+27672412217?text="+A.wx(B.eF,o+("\nEstimated Price: R"+j+"\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you."),B.ae,!1),0,null)
+o+=p+("Date: "+(""+A.cw(n)+"/"+A.bu(n)+"/"+A.b8(n))+"\nTime: "+(""+m.a+":"+l)+"\n")}k=A.kg("https://wa.me/+27672412217?text="+A.wx(B.eF,o+("\nEstimated Price: R"+j+"\nFinal price to be confirmed by stylist.\n\nThank you."),B.ae,!1),0,null)
 $.aH6().Fx("open",[k.k(0)])
 s=1
 break
