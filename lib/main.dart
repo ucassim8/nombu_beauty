@@ -721,6 +721,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // 3️⃣ Call the helper
   await sendWhatsAppRequest(booking);
+  await sendWhatsAppRequest(booking.phoneNumber, 'Booking confirmed for ${booking.date}');
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text('WhatsApp opened successfully!')),
   );
