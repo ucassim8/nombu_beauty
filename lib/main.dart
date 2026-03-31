@@ -516,14 +516,6 @@ class AdminDashboard extends StatefulWidget {
   _AdminDashboardState createState() => _AdminDashboardState();
 }
 ),
-      ),
-    );
-  }
-} // <-- this closes _ServiceScreenState),
-      ),
-    );
-  }
-} // <-- this closes _ServiceScreenState
 class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _passwordController = TextEditingController();
   bool _authenticated = false;
