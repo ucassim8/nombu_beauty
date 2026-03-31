@@ -584,11 +584,112 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     onPressed: () async {
                       // WhatsApp payment request
                       String phone = booking['phoneNumber'];
-                      String message =
-                          'Hello ${booking['clientName']} 🌸\n\nYour booking for ${booking['service']} has been confirmed!\n\nDeposit: R100\nFull Price: R${booking['price']}\n\nPlease make payment via EFT:\nCapitec\nMrs K Siwela\n1867785194\nSavings\n\nThank you for choosing NOMBU Beauty 💗';
-                      String url = 'https://wa.me/$phone?text=${Uri.encodeFull(message)}';
-                      if (await canLaunch(url)) await launch(url);
-                    },
+// ------------------------- ADMIN DASHBOARD -------------------------
+class AdminDashboard extends StatefulWidget {
+  @override
+  _AdminDashboardState createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  final TextEditingController _passwordController = TextEditingController();
+  bool _authenticated = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_authenticated) {
+      return Scaffold(
+        appBar: AppBar(
+            title: Text('Admin Dashboard'),
+            backgroundColor: Colors.pink.shade400),
+        body: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(labelText: 'Enter password'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: () {
+                    if (_passwordController.text == '2478') {
+                      setState(() => _authenticated = true);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Wrong password')));
+                    }
+                  },
+                  child: Text('Enter'))
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+          title: Text('Admin Dashboard'),
+          backgroundColor: Colors.pink.shade400),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('bookings')
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
+
+          final bookings = snapshot.data!.docs;
+
+          if (bookings.isEmpty)
+            return Center(child: Text('No bookings yet'));
+
+          return ListView.builder(
+            itemCount: bookings.length,
+            itemBuilder: (context, index) {
+              final booking = bookings[index];
+
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                child: ListTile(
+                  onTap: () => editBooking(context, booking),
+                  title: Text(
+                      '${booking['clientName']} - ${booking['service']}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Category: ${booking['category']}'),
+                      Text('Location: ${booking['location']}'),
+                      Text('Date: ${booking['date']}'),
+                      Text('Time: ${booking['time']}'),
+                      Text('Price: R${booking['price']}'),
+                      Text(
+                        'Status: ${booking['status']}',
+                        style: TextStyle(
+                          color: booking['status'] == 'Approved'
+                              ? Colors.green
+                              : Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.orange),
+                        onPressed: () => editBooking(context, booking),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.payment, color: Colors.green),
+                        onPressed: () => requestPayment(booking),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red),
+                        onPressed: () => cancelBooking(booking),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -597,6 +698,113 @@ class _AdminDashboardState extends State<AdminDashboard> {
         },
       ),
     );
+  }
+
+  // ---------------- EDIT BOOKING ----------------
+
+  Future<void> editBooking(
+      BuildContext context, DocumentSnapshot booking) async {
+    TextEditingController dateController =
+        TextEditingController(text: booking['date']);
+
+    TextEditingController timeController =
+        TextEditingController(text: booking['time']);
+
+    TextEditingController priceController =
+        TextEditingController(text: booking['price'].toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Edit Booking"),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: dateController,
+                decoration: InputDecoration(labelText: "Date"),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: timeController,
+                decoration: InputDecoration(labelText: "Time"),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: priceController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: "Price"),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          ElevatedButton(
+            child: Text("Save"),
+            onPressed: () async {
+              await FirebaseFirestore.instance
+                  .collection('bookings')
+                  .doc(booking.id)
+                  .update({
+                'date': dateController.text,
+                'time': timeController.text,
+                'price': int.parse(priceController.text),
+              });
+
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------- REQUEST PAYMENT ----------------
+
+  Future<void> requestPayment(DocumentSnapshot booking) async {
+    await FirebaseFirestore.instance
+        .collection('bookings')
+        .doc(booking.id)
+        .update({
+      'status': 'Approved',
+    });
+
+    String phone = booking['phoneNumber'];
+
+    String message =
+        'Hello ${booking['clientName']} 🌸\n\n'
+        'Your booking has been confirmed!\n\n'
+        'Service: ${booking['service']}\n'
+        'Date: ${booking['date']}\n'
+        'Time: ${booking['time']}\n'
+        'Price: R${booking['price']}\n\n'
+        'Deposit: R100\n\n'
+        'Please make payment via EFT:\n'
+        'Capitec\n'
+        'Mrs K Siwela\n'
+        '1867785194\n'
+        'Savings\n\n'
+        'Thank you 💗';
+
+    String url =
+        'https://wa.me/$phone?text=${Uri.encodeFull(message)}';
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
+  }
+
+  // ---------------- CANCEL BOOKING ----------------
+
+  Future<void> cancelBooking(DocumentSnapshot booking) async {
+    await FirebaseFirestore.instance
+        .collection('bookings')
+        .doc(booking.id)
+        .delete();
   }
 }
 
