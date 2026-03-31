@@ -372,25 +372,30 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
       'Hello NOMBU Beauty 🌸\n\nI\'d like to request a booking.\n\n'
       'Name: ${booking.clientName}\nService: ${booking.service}\nCategory: ${booking.category}\nLocation: ${booking.location}\n';
 
-  if ((widget.category == 'Hair Services' || widget.category == 'Makeup' || widget.category == 'Hair Laundry')) {
+  if ((booking.category == 'Hair Services' ||
+      booking.category == 'Makeup' ||
+      booking.category == 'Hair Laundry')) {
     String dateStr = '${booking.date.day}/${booking.date.month}/${booking.date.year}';
     String timeStr = '${booking.time.hour}:${booking.time.minute.toString().padLeft(2, '0')}';
-    message += (widget.category == 'Hair Laundry' ? 'Drop-off ' : '') + 'Date: $dateStr\nTime: $timeStr\n';
+    message += (booking.category == 'Hair Laundry' ? 'Drop-off ' : '') + 'Date: $dateStr\nTime: $timeStr\n';
   }
 
   message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.';
 
   final Uri whatsappUri = Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
 
-  // Launch in Web or Mobile
-  if (!await launchUrl(
-    whatsappUri,
-    mode: LaunchMode.externalApplication, // Ensures it opens WhatsApp app or web
-  )) {
+  // For Web, open in new tab
+  if (kIsWeb) {
+    // ignore: undefined_prefixed_name
+    js.context.callMethod('open', [whatsappUri.toString()]);
+    return;
+  }
+
+  // For Mobile
+  if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
     throw 'Could not launch WhatsApp';
   }
 }
-
 
   @override
   Widget build(BuildContext context) {
