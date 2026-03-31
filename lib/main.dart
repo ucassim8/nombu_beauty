@@ -621,7 +621,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                       IconButton(
                         icon: Icon(Icons.payment, color: Colors.green),
-                        onPressed: () => approveBooking(booking),
+                        onPressed: () => requestPayment(booking),
                       ),
                       IconButton(
                         icon: Icon(Icons.close, color: Colors.red),
