@@ -380,10 +380,13 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
 
   message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.';
 
-  String url = 'https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}';
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
+  final Uri whatsappUri = Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
+
+  // Launch in Web or Mobile
+  if (!await launchUrl(
+    whatsappUri,
+    mode: LaunchMode.externalApplication, // Ensures it opens WhatsApp app or web
+  )) {
     throw 'Could not launch WhatsApp';
   }
 }
