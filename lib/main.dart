@@ -507,8 +507,7 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
       ),
     );
   }
-}   // <-- ONLY ONE closing for _ServiceScreenState
-            
+}   // <-- ONLY ONE closing for servicescreen
 
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
@@ -525,8 +524,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (!_authenticated) {
       return Scaffold(
         appBar: AppBar(
-            title: Text('Admin Dashboard'),
-            backgroundColor: Colors.pink.shade400),
+          title: Text('Admin Dashboard'),
+          backgroundColor: Colors.pink.shade400,
+        ),
         body: Padding(
           padding: EdgeInsets.all(20),
           child: Column(
@@ -538,25 +538,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                  onPressed: () {
-                    if (_passwordController.text == '2478') {
-                      setState(() => _authenticated = true);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Wrong password')));
-                    }
-                  },
-                  child: Text('Enter'))
+                onPressed: () {
+                  if (_passwordController.text == '2478') {
+                    setState(() => _authenticated = true);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Wrong password')),
+                    );
+                  }
+                },
+                child: Text('Enter'),
+              )
             ],
           ),
         ),
       );
     }
 
+    // ---------------- STREAM BUILDER FOR BOOKINGS ----------------
     return Scaffold(
       appBar: AppBar(
-          title: Text('Admin Dashboard'),
-          backgroundColor: Colors.pink.shade400),
+        title: Text('Admin Dashboard'),
+        backgroundColor: Colors.pink.shade400,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('bookings')
@@ -609,7 +613,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                       IconButton(
                         icon: Icon(Icons.payment, color: Colors.green),
-                        onPressed: () => requestPayment(booking),
+                        onPressed: () => approveBooking(booking),
                       ),
                       IconButton(
                         icon: Icon(Icons.close, color: Colors.red),
@@ -627,15 +631,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   // ---------------- EDIT BOOKING ----------------
-
   Future<void> editBooking(
       BuildContext context, DocumentSnapshot booking) async {
     TextEditingController dateController =
         TextEditingController(text: booking['date']);
-
     TextEditingController timeController =
         TextEditingController(text: booking['time']);
-
     TextEditingController priceController =
         TextEditingController(text: booking['price'].toString());
 
@@ -680,7 +681,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'time': timeController.text,
                 'price': int.parse(priceController.text),
               });
-
               Navigator.pop(context);
             },
           ),
@@ -689,21 +689,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  // ---------------- REQUEST PAYMENT ----------------
-
-  Future<void> requestPayment(DocumentSnapshot booking) async {
+  // ---------------- APPROVE BOOKING + WHATSAPP ----------------
+  Future<void> approveBooking(DocumentSnapshot booking) async {
     await FirebaseFirestore.instance
         .collection('bookings')
         .doc(booking.id)
-        .update({
-      'status': 'Approved',
-    });
+        .update({'status': 'Approved'});
 
     String phone = booking['phoneNumber'];
-
     String message =
         'Hello ${booking['clientName']} 🌸\n\n'
-        'Your booking has been confirmed!\n\n'
+        'Your booking has been approved!\n\n'
         'Service: ${booking['service']}\n'
         'Date: ${booking['date']}\n'
         'Time: ${booking['time']}\n'
@@ -716,16 +712,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
         'Savings\n\n'
         'Thank you 💗';
 
-    String url =
-        'https://wa.me/$phone?text=${Uri.encodeFull(message)}';
+    final Uri whatsappUri =
+        Uri.parse('https://wa.me/$phone?text=${Uri.encodeFull(message)}');
 
-    if (await canLaunch(url)) {
-      await launch(url);
+    // Web
+    if (kIsWeb) {
+      js.context.callMethod('open', [whatsappUri.toString()]);
+      return;
+    }
+
+    // Mobile
+    if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not open WhatsApp')),
+      );
     }
   }
 
   // ---------------- CANCEL BOOKING ----------------
-
   Future<void> cancelBooking(DocumentSnapshot booking) async {
     await FirebaseFirestore.instance
         .collection('bookings')
