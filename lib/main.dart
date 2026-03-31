@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart'; // for kIsWeb
 // Only import dart:js for Web
 // ignore: uri_does_not_exist
 import 'dart:js' as js;
-import '../whatsapp_helper.dart';
+import 'whatsapp_helper.dart';
 
 // ------------------------- MAIN -------------------------
 void main() async {
