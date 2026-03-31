@@ -506,8 +506,7 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
         ),
       ),
     );
-  }
-} // <-- End of _ServiceScreenState
+    } 
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
