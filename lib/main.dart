@@ -392,20 +392,22 @@ Future<void> sendWhatsAppRequest(BookingRequest booking) async {
     message += (booking.category == 'Hair Laundry' ? 'Drop-off ' : '') + 'Date: $dateStr\nTime: $timeStr\n';
   }
 
-  message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below.\n\nThank you.';
+  message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed by stylist.\n\nThank you.';
 
   final Uri whatsappUri = Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
 
-  // For Web, open in new tab
   if (kIsWeb) {
+    // Open in new browser tab
     // ignore: undefined_prefixed_name
     js.context.callMethod('open', [whatsappUri.toString()]);
     return;
   }
 
-  // For Mobile
+  // Mobile
   if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
-    throw 'Could not launch WhatsApp';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Could not open WhatsApp.')),
+    );
   }
 }
 
