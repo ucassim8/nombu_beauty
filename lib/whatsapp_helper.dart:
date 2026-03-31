@@ -1,0 +1,13 @@
+import 'package:flutter/foundation.dart';
+import 'whatsapp_launcher.dart'; // Conditional import
+
+Future<void> sendWhatsAppRequest(String number, String message) async {
+  number = number.replaceAll('+', '');
+  String url = 'https://wa.me/$number?text=${Uri.encodeComponent(message)}';
+
+  if (kIsWeb) {
+    launchWhatsApp(url); // Web opens in new tab
+  } else {
+    await launchWhatsApp(url); // Mobile opens via url_launcher
+  }
+}
