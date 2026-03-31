@@ -720,8 +720,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       'Thank you 💗';
 
   // 3️⃣ Call the helper
-  await sendWhatsAppRequest(booking['phoneNumber'], message);
-
+  await sendBookingWhatsApp(booking);
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(content: Text('WhatsApp opened successfully!')),
   );
