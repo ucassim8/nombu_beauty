@@ -719,13 +719,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
       'Savings\n\n'
       'Thank you 💗';
 
-  String url = 'https://wa.me/$phone?text=${Uri.encodeFull(message)}';
+  // 3️⃣ Call the helper
+  await sendWhatsAppRequest(booking['phoneNumber'], message);
 
-  if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Could not open WhatsApp')),
-    );
-  }
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('WhatsApp opened successfully!')),
+  );
   }
 
   // ---------------- CANCEL BOOKING ----------------
