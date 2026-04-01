@@ -157,7 +157,7 @@ class HomeScreen extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFDE6EB), // PINK BOXES
+                  color: const Color(0xFFFDE6EB), // RESTORED ORIGINAL PINK BOX COLOR
                   borderRadius: BorderRadius.circular(20), 
                   border: Border.all(color: Colors.pink.shade100, width: 2), 
                   boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
@@ -185,26 +185,27 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
+  // FULL ORIGINAL SERVICE LIST RESTORED
   final Map<String, List<Map<String, dynamic>>> services = {
     'Hair Services': [
       {'name': 'Basic instal', 'price': 200},
-      {'name': 'Instal + styling', 'price': 280},
-      {'name': 'Sew-in instal', 'price': 300},
-      {'name': 'Closure wig sew-in', 'price': 300},
-      {'name': 'Frontal wig sew-in', 'price': 350},
-      {'name': 'Wig restoration', 'price': 150}
+      {'name': 'instal + styling', 'price': 280},
+      {'name': 'sewin instal', 'price': 300},
+      {'name': 'instal + curling', 'price': 400},
+      {'name': 'frontal ponytail', 'price': 350},
     ],
     'Hair Laundry': [
       {'name': 'Wig wash', 'price': 150},
-      {'name': 'Plugging', 'price': 80},
-      {'name': 'Deep conditioning', 'price': 50},
-      {'name': 'Wig treatment', 'price': 100}
+      {'name': 'plugging', 'price': 80},
+      {'name': 'wig customisation (tint)', 'price': 180},
+      {'name': 'bleaching + plugging', 'price': 220},
     ],
     'Makeup': [
       {'name': 'Natural look', 'price': 300},
-      {'name': 'Soft glam', 'price': 400},
-      {'name': 'Full glam', 'price': 500},
-      {'name': 'Bridal makeup', 'price': 800}
+      {'name': 'soft glam', 'price': 400},
+      {'name': 'soft glam (lashes)', 'price': 450},
+      {'name': 'full glam', 'price': 500},
+      {'name': 'full glam (lashes)', 'price': 550},
     ],
   };
 
@@ -221,9 +222,10 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String afterHoursNote = "";
     int currentHour = DateTime.now().hour;
 
-    if (currentHour >= 18 || currentHour < 6) {
-      finalPrice += 50;
-      afterHoursNote = "\n⚠️ After-Hours Fee: R50 Included";
+    // After-hours fee: R100 for before 8am or after 6pm
+    if (currentHour >= 18 || currentHour < 8) {
+      finalPrice += 100;
+      afterHoursNote = "\n⚠️ After-Hours Fee: R100 Included";
     }
 
     String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\nName: $clientName\nPhone: $phoneNumber\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nTotal Price: R$finalPrice$afterHoursNote';
@@ -257,6 +259,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
             onChanged: (val) => setState(() => selectedProvince = val),
           ),
+          // RESTORED 3 SPECIFIC LOCATIONS IN DROPDOWN
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'City/Suburb', labelStyle: TextStyle(color: Colors.pink.shade300)),
             items: ['Pretoria', 'Hammanskraal', 'Polokwane'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
@@ -294,7 +297,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
-  // ORIGINAL MESSAGE RESTORED
   void sendPaymentRequest(String clientPhone, String clientName) {
     String msg = "Hello $clientName 🌸\n\nYour booking has been confirmed!\n\nDeposit: R100\n\nPlease make payment via EFT:\nCapitec\nMrs K Siwela\n1867785194\nSavings\n\nThank you 💗";
     final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
