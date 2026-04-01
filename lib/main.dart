@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
-import 'firebase_options.dart';
+import 'package:flutter/foundation.dart'; 
+import 'firebase_options.dart'; 
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
-// ------------------------- MAIN -------------------------
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(NombuBeautyApp());
 }
 
@@ -24,7 +21,7 @@ class NombuBeautyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NOMBU Beauty',
       theme: ThemeData(
-        primarySwatch: Colors.pink,
+        primaryColor: Colors.pink,
         scaffoldBackgroundColor: const Color(0xFFFDE6EB),
         fontFamily: 'Poppins',
       ),
@@ -39,11 +36,7 @@ class BookingPoliciesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Booking Policies'),
-        backgroundColor: Colors.pink.shade400,
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Booking Policies'), backgroundColor: Colors.pink.shade400),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -51,8 +44,7 @@ class BookingPoliciesScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Text(
-                  '''
-All appointments must be booked in advance through website/call or in person.
+                  '''All appointments must be booked in advance through website/call or in person.
 * A non-refundable deposit of R100 is required to secure your appointment.
 * No Walk-ins will be accepted.
 
@@ -68,23 +60,17 @@ Refund & Satisfaction Policy
 * No refunds on services. 
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
-@NOMBU BEAUTY
-                  ''',
-                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700, height: 1.6),
+@NOMBU BEAUTY''',
+                  style: TextStyle(fontSize: 14, color: Colors.pink.shade700),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (_) => SplashScreen())),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink.shade400,
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white, fontSize: 16)),
-            ),
-            const SizedBox(height: 20),
+              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SplashScreen())),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
+              child: const Text('Accept & Continue', style: TextStyle(color: Colors.white)),
+            )
           ],
         ),
       ),
@@ -120,20 +106,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-        ),
+        decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
         child: Center(
           child: FadeTransition(
             opacity: _animation,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/logo.jpg', width: 130, height: 130),
-                const SizedBox(height: 20),
-                Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
-                const SizedBox(height: 8),
-                Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
+                Image.asset('assets/logo.jpg', width: 120, height: 120),
+                const SizedBox(height: 16),
+                Text('NOMBU Beauty', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
+                const Text('Where Beauty Meets Perfection', style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.pink)),
               ],
             ),
           ),
@@ -155,63 +138,26 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Image.asset('assets/Logonombu.jpg', width: 40, height: 40),
-            const SizedBox(width: 12),
-            const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-          ],
-        ),
-        backgroundColor: Colors.pink.shade400,
-        elevation: 5,
-      ),
+      appBar: AppBar(title: const Text('NOMBU Beauty', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)), backgroundColor: Colors.pink.shade400),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, 
-            mainAxisSpacing: 16, 
-            crossAxisSpacing: 16,
-            childAspectRatio: 0.9,
-          ),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16),
           itemBuilder: (context, index) {
             final category = categories[index];
-            return GestureDetector(
+            return InkWell(
               onTap: () {
-                if (category['name'] == 'Admin Dashboard') {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
-                } else {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
-                }
+                if (category['name'] == 'Admin Dashboard') Navigator.push(context, MaterialPageRoute(builder: (_) => AdminDashboard()));
+                else Navigator.push(context, MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'])));
               },
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.pink.shade100, Colors.pink.shade50], 
-                    begin: Alignment.topLeft, 
-                    end: Alignment.bottomRight
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.pink.shade200.withOpacity(0.4), 
-                      blurRadius: 8, 
-                      offset: const Offset(0, 4)
-                    )
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(category['icon'], size: 45, color: Colors.pink.shade800),
-                    const SizedBox(height: 10),
-                    Text(category['name'], 
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
-                  ],
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.pink.shade100, blurRadius: 5)]),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Icon(category['icon'], size: 40, color: Colors.pink),
+                  const SizedBox(height: 8),
+                  Text(category['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                ]),
               ),
             );
           },
@@ -230,94 +176,32 @@ class ServiceScreen extends StatefulWidget {
 }
 
 class _ServiceScreenState extends State<ServiceScreen> {
-  final Map<String, List<Map<String, dynamic>>> servicesList = {
-    'Hair Services': [
-      {'name': 'Basic instal', 'price': 200},
-      {'name': 'Instal + styling', 'price': 280},
-      {'name': 'Sew-in instal', 'price': 300},
-      {'name': 'Instal + curling', 'price': 400},
-      {'name': 'Frontal ponytail', 'price': 350},
-    ],
-    'Hair Laundry': [
-      {'name': 'Wig wash', 'price': 150},
-      {'name': 'Plugging', 'price': 80},
-      {'name': 'Wig customisation (tint)', 'price': 180},
-      {'name': 'Bleaching + plugging', 'price': 220},
-    ],
-    'Makeup': [
-      {'name': 'Natural look', 'price': 300},
-      {'name': 'Soft glam', 'price': 400},
-      {'name': 'Soft glam (lashes)', 'price': 450},
-      {'name': 'Full glam', 'price': 500},
-    ],
+  final Map<String, List<Map<String, dynamic>>> services = {
+    'Hair Services': [{'name': 'Basic instal', 'price': 200}, {'name': 'Instal + styling', 'price': 280}, {'name': 'Sew-in instal', 'price': 300}],
+    'Hair Laundry': [{'name': 'Wig wash', 'price': 150}, {'name': 'Plugging', 'price': 80}],
+    'Makeup': [{'name': 'Natural look', 'price': 300}, {'name': 'Soft glam', 'price': 400}],
   };
 
-  final Map<String, List<String>> provinceLocations = {
-    'Pretoria': ['Montana', 'Hammanskraal'],
-    'Limpopo': ['Polokwane'],
-  };
-
-  String? selectedService, selectedProvince, selectedLocation, clientName;
-  int? basePrice;
-  DateTime? selectedDate;
-  TimeOfDay? selectedTime;
-  bool isAfterHours = false;
-
-  int get finalPrice => (basePrice ?? 0) + (isAfterHours ? 50 : 0);
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027),
-    );
-    if (picked != null) setState(() => selectedDate = picked);
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    if (picked != null) setState(() => selectedTime = picked);
-  }
+  String? selectedService, selectedProvince, selectedLocation, clientName, phoneNumber;
+  int? selectedPrice;
 
   void triggerWhatsApp() {
-    if (selectedService == null || clientName == null || selectedProvince == null || 
-        selectedLocation == null || selectedDate == null || selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
+    if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
       return;
     }
-
-    String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
-    String formattedTime = selectedTime!.format(context);
-
-    String message = 'Hello NOMBU Beauty 🌸\n\n'
-        'I\'d like to request a booking.\n\n'
-        'Name: $clientName\n'
-        'Service: $selectedService\n'
-        'Category: ${widget.category}\n'
-        'Location: $selectedLocation\n'
-        'Date: $formattedDate\n'
-        'Time: $formattedTime\n'
-        '${isAfterHours ? "After Hours: Yes (Late fee applied)\n" : ""}'
-        '\nEstimated Price: R$finalPrice\n'
-        'Final price to be confirmed by stylist.\n\n'
-        'I will send my reference photo below.\n\n'
-        'Thank you.';
-
+    String message = 'Hello NOMBU Beauty 🌸\nName: $clientName\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nPrice: R$selectedPrice';
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
-    if (kIsWeb) {
-      js.context.callMethod('open', [webUrl, '_blank']);
-    } else {
-      launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
-    }
+    if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
+    else launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
 
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'service': selectedService,
-      'category': widget.category,
+      'phoneNumber': phoneNumber,
       'location': '$selectedLocation, $selectedProvince',
-      'date': formattedDate,
-      'time': formattedTime,
-      'afterHours': isAfterHours,
-      'price': finalPrice,
+      'price': selectedPrice,
       'status': 'Pending',
       'timestamp': FieldValue.serverTimestamp(),
     });
@@ -328,70 +212,31 @@ class _ServiceScreenState extends State<ServiceScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.category), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(children: [
-          TextField(
-            decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-            onChanged: (val) => clientName = val
-          ),
-          const SizedBox(height: 15),
+          TextField(decoration: const InputDecoration(labelText: 'Your Name'), onChanged: (val) => clientName = val),
+          TextField(decoration: const InputDecoration(labelText: 'WhatsApp Number'), onChanged: (val) => phoneNumber = val),
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-            value: selectedProvince,
-            items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-            onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
+            decoration: const InputDecoration(labelText: 'Province'),
+            items: ['Pretoria', 'Limpopo'].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            onChanged: (val) => setState(() => selectedProvince = val),
           ),
-          const SizedBox(height: 15),
-          if (selectedProvince != null)
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: 'Select Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-              value: selectedLocation,
-              items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
-              onChanged: (val) => setState(() => selectedLocation = val),
-            ),
-          const SizedBox(height: 15),
+          TextField(decoration: const InputDecoration(labelText: 'City/Suburb'), onChanged: (val) => selectedLocation = val),
           DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Select Service', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-            items: servicesList[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
+            decoration: const InputDecoration(labelText: 'Service'),
+            items: services[widget.category]!.map((e) => DropdownMenuItem(value: e['name'] as String, child: Text("${e['name']} (R${e['price']})"))).toList(),
             onChanged: (val) {
               setState(() {
                 selectedService = val;
-                basePrice = servicesList[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
+                selectedPrice = services[widget.category]!.firstWhere((element) => element['name'] == val)['price'] as int;
               });
             },
           ),
-          const SizedBox(height: 15),
-          SwitchListTile(
-            title: const Text("After Hours Booking (R50 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
-            value: isAfterHours,
-            activeColor: Colors.pink,
-            onChanged: (val) => setState(() => isAfterHours = val),
-          ),
-          const SizedBox(height: 15),
-          Row(children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today, color: Colors.pink),
-                label: Text(selectedDate == null ? "Select Date" : "${selectedDate!.day}/${selectedDate!.month}"),
-                onPressed: () => _selectDate(context),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.access_time, color: Colors.pink),
-                label: Text(selectedTime == null ? "Select Time" : selectedTime!.format(context)),
-                onPressed: () => _selectTime(context),
-              ),
-            ),
-          ]),
           const SizedBox(height: 30),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50)),
             onPressed: triggerWhatsApp,
-            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white)),
           )
         ]),
       ),
@@ -413,53 +258,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     if (!_auth) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.pink.shade400),
         body: Center(child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.lock_outline, size: 60, color: Colors.pink),
-            const SizedBox(height: 20),
-            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(150, 50)),
-              onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, 
-              child: const Text('Login', style: TextStyle(color: Colors.white))
-            )
+            TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
+            ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
           ]),
         )),
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Bookings Manager'), backgroundColor: Colors.pink.shade400),
+      appBar: AppBar(title: const Text('Admin Dashboard'), backgroundColor: Colors.pink.shade400),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          if (snapshot.data!.docs.isEmpty) return const Center(child: Text('No bookings found.'));
-          return ListView(children: snapshot.data!.docs.map((doc) {
-            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: ListTile(
-                title: Text(data['clientName'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text("${data['service']}\n${data['location']}\n${data['date']} at ${data['time']}\nStatus: ${data['status']}"),
-                isThreeLine: true,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(icon: const Icon(Icons.check_circle, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
-                    IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => doc.reference.delete()),
-                  ],
-                ),
-              ),
-            );
-          }).toList());
+          return ListView(children: snapshot.data!.docs.map((doc) => ListTile(
+            title: Text(doc['clientName']),
+            subtitle: Text("${doc['service']} - ${doc['status']}"),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+                IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: () => doc.reference.update({'status': 'Declined'})),
+              ],
+            ),
+          )).toList());
         },
       ),
     );
   }
 }
-
