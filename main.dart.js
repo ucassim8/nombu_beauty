@@ -79847,7 +79847,7 @@ $1(a){return new A.pr(this.a.h(0,"name"),null)},
 $S:509}
 A.pr.prototype={
 af(){var s=t.N,r=t.z,q=t.H7
-return new A.E6(A.al(["Hair Services",A.b([A.al(["name","Basic instal","price",200],s,r),A.al(["name","Instal + styling","price",280],s,r),A.al(["name","Sew-in instal","price",300],s,r),A.al(["name","Closure wig sew-in","price",300],s,r),A.al(["name","Frontal wig sew-in","price",350],s,r),A.al(["name","Wig restoration","price",150],s,r)],q),"Hair Laundry",A.b([A.al(["name","Wig wash","price",150],s,r),A.al(["name","Plugging","price",80],s,r),A.al(["name","Deep conditioning","price",50],s,r),A.al(["name","Wig treatment","price",100],s,r)],q),"Makeup",A.b([A.al(["name","Natural look","price",300],s,r),A.al(["name","Soft glam","price",400],s,r),A.al(["name","Full glam","price",500],s,r),A.al(["name","Bridal makeup","price",800],s,r)],q)],s,t.b5))}}
+return new A.E6(A.al(["Hair Services",A.b([A.al(["name","Basic instal","price",200],s,r),A.al(["name","instal + styling","price",280],s,r),A.al(["name","sewin instal","price",300],s,r),A.al(["name","instal + curling","price",400],s,r),A.al(["name","frontal ponytail","price",350],s,r)],q),"Hair Laundry",A.b([A.al(["name","Wig wash","price",150],s,r),A.al(["name","plugging","price",80],s,r),A.al(["name","wig customisation (tint)","price",180],s,r),A.al(["name","bleaching + plugging","price",220],s,r)],q),"Makeup",A.b([A.al(["name","Natural look","price",300],s,r),A.al(["name","soft glam","price",400],s,r),A.al(["name","soft glam (lashes)","price",450],s,r),A.al(["name","full glam","price",500],s,r),A.al(["name","full glam (lashes)","price",550],s,r)],q)],s,t.b5))}}
 A.E6.prototype={
 ajH(){var s,r,q,p,o,n,m,l,k,j,i,h=this
 if(h.e==null||h.w==null||h.x==null||h.f==null||h.r==null){s=h.c.ak(t.Pu)
@@ -79856,8 +79856,8 @@ s.f.UV(B.N3)
 return}r=h.y
 if(r==null)r=0
 q=A.avY(new A.dl(Date.now(),0,!1))
-if(q>=18||q<6){r+=50
-p="\n\u26a0\ufe0f After-Hours Fee: R50 Included"}else p=""
+if(q>=18||q<8){r+=100
+p="\n\u26a0\ufe0f After-Hours Fee: R100 Included"}else p=""
 s=A.vg(B.mG,"Hello NOMBU Beauty \ud83c\udf38\n\nBooking Request:\nName: "+A.k(h.w)+"\nPhone: "+A.k(h.x)+"\nService: "+A.k(h.e)+"\nLocation: "+A.k(h.r)+", "+A.k(h.f)+"\nTotal Price: R"+r+p,B.a2,!1)
 $.asy().w3("open",["https://api.whatsapp.com/send?phone=27672412217&text="+s,"_blank"])
 s=$.dc
