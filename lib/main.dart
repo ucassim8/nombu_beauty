@@ -29,7 +29,7 @@ class NombuBeautyApp extends StatelessWidget {
   }
 }
 
-// ------------------------- BOOKING POLICIES (RESTORED) -------------------------
+// ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -42,23 +42,7 @@ class BookingPoliciesScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Text(
-                  '''All appointments must be booked in advance through website/call or in person.
-* A non-refundable deposit of R100 is required to secure your appointment.
-* No Walk-ins will be accepted.
-
-Cancellation & Rescheduling
-* We require 24 hours notice for cancellation or rescheduling.
-* Cancellations made within 24 hours will result in a forfeited deposit.
-
-Late Policy
-* Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.
-* If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.
-
-Refund & Satisfaction Policy
-* No refunds on services. 
-
-By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
-@NOMBU BEAUTY''',
+                  '''All appointments must be booked in advance through website/call or in person.\n* A non-refundable deposit of R100 is required to secure your appointment.\n* No Walk-ins will be accepted.\n\nCancellation & Rescheduling\n* We require 24 hours notice for cancellation or rescheduling.\n* Cancellations made within 24 hours will result in a forfeited deposit.\n\nLate Policy\n* Clients arriving more than an hour late may need to reschedule and the deposit will be forfeited.\n* If we can still accommodate your appointment despite tardiness, a late fee of R50 will apply.\n\nRefund & Satisfaction Policy\n* No refunds on services. \n\nBy booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗\n@NOMBU BEAUTY''',
                   style: TextStyle(fontSize: 14, color: Colors.pink.shade700),
                 ),
               ),
@@ -76,7 +60,7 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
   }
 }
 
-// ------------------------- SPLASH SCREEN (RESTORED) -------------------------
+// ------------------------- SPLASH SCREEN -------------------------
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -123,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
-// ------------------------- HOME SCREEN (RESTORED) -------------------------
+// ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -164,7 +148,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ------------------------- SERVICE SCREEN (RESTORED WITH CALCULATOR) -------------------------
+// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -188,30 +172,13 @@ class _ServiceScreenState extends State<ServiceScreen> {
     return selectedTime.hour >= 18 ? base + 100 : base;
   }
 
-  void showReviewAndSend() {
+  void triggerWhatsApp() {
     if (selectedService == null || clientName == null || phoneNumber == null || selectedProvince == null || selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields!')));
       return;
     }
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Review Booking"),
-        content: Text("Name: $clientName\nService: $selectedService\nTime: ${selectedTime.format(context)}\nTotal: R${calculateTotal()}"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Edit")),
-          ElevatedButton(onPressed: triggerWhatsApp, child: const Text("Confirm & Send")),
-        ],
-      ),
-    );
-  }
-
-  void triggerWhatsApp() {
-    Navigator.pop(context);
     String message = 'Hello NOMBU Beauty 🌸\nName: $clientName\nService: $selectedService\nLocation: $selectedLocation, $selectedProvince\nTime: ${selectedTime.format(context)}\nTotal: R${calculateTotal()}';
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
-    
     if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
     else launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
 
@@ -260,20 +227,16 @@ class _ServiceScreenState extends State<ServiceScreen> {
             },
           ),
           const SizedBox(height: 30),
-          Text("Estimated Total: R${calculateTotal()}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.pink)),
+          Text("Total: R${calculateTotal()}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.pink)),
           const SizedBox(height: 10),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50)),
-            onPressed: showReviewAndSend,
-            child: const Text('Review & Send via WhatsApp', style: TextStyle(color: Colors.white)),
-          )
+          ElevatedButton(onPressed: triggerWhatsApp, style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, minimumSize: const Size(double.infinity, 50)), child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white))),
         ]),
       ),
     );
   }
 }
 
-// ------------------------- ADMIN DASHBOARD (RESTORED & FIXED) -------------------------
+// ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -299,7 +262,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: const Text('Admin'), 
         backgroundColor: Colors.pink.shade400,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
@@ -307,7 +270,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: "Search Client Name", 
+                hintText: "Search Name", 
                 fillColor: Colors.white, 
                 filled: true,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -322,14 +285,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           var docs = snapshot.data!.docs.where((d) => d['clientName'].toString().toLowerCase().contains(search)).toList();
-          
           return ListView.builder(
             itemCount: docs.length,
             itemBuilder: (context, i) {
               var d = docs[i];
               return ListTile(
                 title: Text(d['clientName']),
-                subtitle: Text("${d['service']} - ${d['status']}\n${d['location']}"),
+                subtitle: Text("${d['service']} - ${d['status']}"),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
