@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart'; 
-import 'firebase_options.dart'; 
+import 'package:flutter/foundation.dart';
+import 'firebase_options.dart';
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
@@ -21,7 +21,7 @@ class NombuBeautyApp extends StatelessWidget {
     return MaterialApp(
       title: 'NOMBU Beauty',
       theme: ThemeData(
-        primaryColor: Colors.pink,
+        primarySwatch: Colors.pink,
         scaffoldBackgroundColor: const Color(0xFFFDE6EB),
         fontFamily: 'Poppins',
       ),
@@ -37,7 +37,7 @@ class BookingPoliciesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Booking Policies'), 
+        title: const Text('Booking Policies'),
         backgroundColor: Colors.pink.shade400,
         centerTitle: true,
       ),
@@ -66,16 +66,18 @@ Refund & Satisfaction Policy
 * No refunds on services. 
 
 By booking an appointment, you agree to abide by our salon policies. Thank you for trusting us with your wig care!💗
-@NOMBU BEAUTY''',
+@NOMBU BEAUTY
+                  ''',
                   style: TextStyle(fontSize: 14, color: Colors.pink.shade700, height: 1.6),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SplashScreen())),
+              onPressed: () => Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (_) => SplashScreen())),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink.shade400, 
+                  backgroundColor: Colors.pink.shade400,
                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Text('Accept & Continue', style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -116,17 +118,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        ),
         child: Center(
           child: FadeTransition(
             opacity: _animation,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/Logonombu.jpg', width: 130, height: 130),
+                Image.asset('assets/logo.jpg', width: 130, height: 130),
                 const SizedBox(height: 20),
                 Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
-                const Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
+                const SizedBox(height: 8),
+                Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
               ],
             ),
           ),
@@ -136,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
-// ------------------------- HOME SCREEN (3D DESIGN) -------------------------
+// ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> categories = [
     {'name': 'Hair Services', 'icon': Icons.content_cut},
@@ -157,14 +162,14 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         backgroundColor: Colors.pink.shade400,
-        elevation: 10,
+        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           itemCount: categories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, mainAxisSpacing: 20, crossAxisSpacing: 20, childAspectRatio: 0.85,
+            crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 0.9,
           ),
           itemBuilder: (context, index) {
             final category = categories[index];
@@ -178,20 +183,16 @@ class HomeScreen extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFDE6EB), 
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
-                  boxShadow: [
-                    BoxShadow(color: Colors.pink.shade900.withOpacity(0.2), blurRadius: 12, offset: const Offset(6, 8)),
-                    const BoxShadow(color: Colors.white, blurRadius: 10, offset: Offset(-5, -5))
-                  ],
+                  gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.pink.shade50], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [BoxShadow(color: Colors.pink.shade200.withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 4))],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(category['icon'], size: 50, color: Colors.pink.shade700),
-                    const SizedBox(height: 12),
-                    Text(category['name'], textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900, fontSize: 15)),
+                    Icon(category['icon'], size: 45, color: Colors.pink.shade800),
+                    const SizedBox(height: 10),
+                    Text(category['name'], textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink.shade900)),
                   ],
                 ),
               ),
@@ -203,7 +204,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ------------------------- SERVICE SCREEN (CASCADING + DATE/TIME) -------------------------
+// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   ServiceScreen({required this.category});
@@ -269,17 +270,27 @@ class _ServiceScreenState extends State<ServiceScreen> {
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
     String formattedTime = selectedTime!.format(context);
 
-    String message = 'Hello NOMBU Beauty 🌸\n\nBooking Request:\n'
-        'Name: $clientName\nService: $selectedService\n'
-        'Location: $selectedLocation, $selectedProvince\n'
-        'Date: $formattedDate\nTime: $formattedTime\n'
+    String message = 'Hello NOMBU Beauty 🌸\n\n'
+        'I\'d like to request a booking.\n\n'
+        'Name: $clientName\n'
+        'Service: $selectedService\n'
+        'Category: ${widget.category}\n'
+        'Location: $selectedLocation\n'
+        'Date: $formattedDate\n'
+        'Time: $formattedTime\n'
         '${isAfterHours ? "After Hours: Yes (R100 fee applied)\n" : ""}'
-        'Estimated Price: R$finalPrice\n\nThank you.';
+        '\nEstimated Price: R$finalPrice\n'
+        'Final price to be confirmed by stylist.\n\n'
+        'I will send my reference photo below.\n\n'
+        'Thank you.';
 
     final String webUrl = "https://api.whatsapp.com/send?phone=27672412217&text=${Uri.encodeComponent(message)}";
     
-    if (kIsWeb) js.context.callMethod('open', [webUrl, '_blank']);
-    else launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    if (kIsWeb) {
+      js.context.callMethod('open', [webUrl, '_blank']);
+    } else {
+      launchUrl(Uri.parse(webUrl), mode: LaunchMode.externalApplication);
+    }
 
     FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
@@ -302,10 +313,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(children: [
-          TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
+          TextField(
+            decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            onChanged: (val) => clientName = val
+          ),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            value: selectedProvince,
             items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
             onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
           ),
@@ -331,17 +346,34 @@ class _ServiceScreenState extends State<ServiceScreen> {
           const SizedBox(height: 15),
           SwitchListTile(
             title: const Text("After Hours (R100 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
-            value: isAfterHours, activeColor: Colors.pink, onChanged: (val) => setState(() => isAfterHours = val),
+            subtitle: const Text("Slots before 8AM or after 6PM"),
+            value: isAfterHours,
+            activeColor: Colors.pink,
+            onChanged: (val) => setState(() => isAfterHours = val),
           ),
           const SizedBox(height: 15),
           Row(children: [
-            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.calendar_today, color: Colors.pink), label: Text(selectedDate == null ? "Date" : "${selectedDate!.day}/${selectedDate!.month}"), onPressed: () => _selectDate(context))),
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.calendar_today, color: Colors.pink),
+                label: Text(selectedDate == null ? "Select Date" : "${selectedDate!.day}/${selectedDate!.month}"),
+                onPressed: () => _selectDate(context),
+              ),
+            ),
             const SizedBox(width: 10),
-            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.access_time, color: Colors.pink), label: Text(selectedTime == null ? "Time" : selectedTime!.format(context)), onPressed: () => _selectTime(context))),
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.access_time, color: Colors.pink),
+                label: Text(selectedTime == null ? "Select Time" : selectedTime!.format(context)),
+                onPressed: () => _selectTime(context),
+              ),
+            ),
           ]),
           const SizedBox(height: 35),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
+            ),
             onPressed: triggerWhatsApp,
             child: const Text('Send via WhatsApp', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           )
@@ -361,13 +393,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _auth = false;
   final TextEditingController _pass = TextEditingController();
 
-  void sendPaymentRequest(String clientPhone, String clientName) {
-    String msg = "Hello $clientName 🌸\n\nBooking confirmed!\nDeposit: R100\nEFT Details:\nCapitec | Mrs K Siwela\n1867785194 | Savings";
-    final String url = "https://api.whatsapp.com/send?phone=$clientPhone&text=${Uri.encodeComponent(msg)}";
-    if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
-    else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!_auth) {
@@ -380,7 +405,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 20),
             TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(150, 50)),
+              onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, 
+              child: const Text('Login', style: TextStyle(color: Colors.white))
+            )
           ]),
         )),
       );
@@ -391,21 +420,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (snapshot.data!.docs.isEmpty) return const Center(child: Text('No bookings found.'));
           return ListView(children: snapshot.data!.docs.map((doc) {
             Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            
+            String name = data['clientName'] ?? 'No Name';
+            String service = data['service'] ?? 'No Service';
+            String loc = data['location'] ?? 'No Location';
+            String d = data['date'] ?? 'No Date';
+            String t = data['time'] ?? 'No Time';
+            String stat = data['status'] ?? 'Pending';
+
             return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), elevation: 4,
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
               child: ListTile(
-                title: Text(data['clientName'] ?? 'No Name', style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text("${data['service']}\n${data['date']} at ${data['time']}\nStatus: ${data['status']}"),
-                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                  IconButton(icon: const Icon(Icons.check_circle, color: Colors.green), onPressed: () {
-                    doc.reference.update({'status': 'Approved'});
-                    // Note: phoneNumber field needs to exist in your Firestore for this button
-                    if (data['phoneNumber'] != null) sendPaymentRequest(data['phoneNumber'], data['clientName']);
-                  }),
-                  IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => doc.reference.delete()),
-                ]),
+                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text("$service\n$loc\n$d at $t\nStatus: $stat"),
+                isThreeLine: true,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(icon: const Icon(Icons.check_circle, color: Colors.green), onPressed: () => doc.reference.update({'status': 'Approved'})),
+                    IconButton(icon: const Icon(Icons.delete, color: Colors.red), onPressed: () => doc.reference.delete()),
+                  ],
+                ),
               ),
             );
           }).toList());
