@@ -289,7 +289,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     'Limpopo': ['Polokwane'],
   };
 
-  final String whatsappNumber = '27672412217'; 
+  final String stylistWhatsapp = '27672412217'; 
 
   bool get requiresFullBooking =>
       (widget.category == 'Hair Services' || widget.category == 'Makeup');
@@ -319,7 +319,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
-  Future<void> saveBookingToFirebase() async {
+  // FIX: Launch WhatsApp first to satisfy browser security
+  Future<void> handleBooking() async {
     if (selectedService == null ||
         clientName == null ||
         phoneNumber == null ||
@@ -350,7 +351,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
       price: selectedPrice ?? 0,
     );
 
-    await FirebaseFirestore.instance.collection('bookings').add({
+    // 1. Launch WhatsApp immediately (before any await calls)
+    await sendWhatsAppRequest(booking);
+
+    // 2. Save to Firebase in the background
+    FirebaseFirestore.instance.collection('bookings').add({
       'service': booking.service,
       'category': booking.category,
       'date': "${booking.date.day}/${booking.date.month}/${booking.date.year}",
@@ -364,13 +369,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    try {
-      await sendWhatsAppRequest(booking);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Opening WhatsApp...')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Booking request processed!')),
+    );
   }
 
   Future<void> sendWhatsAppRequest(BookingRequest booking) async {
@@ -388,12 +389,12 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
     message += '\nEstimated Price: R$estimatedPrice\nFinal price to be confirmed.\n\nThank you.';
 
-    final Uri whatsappUri = Uri.parse('https://wa.me/$whatsappNumber?text=${Uri.encodeFull(message)}');
+    final Uri whatsappUri = Uri.parse('https://wa.me/$stylistWhatsapp?text=${Uri.encodeFull(message)}');
 
-    if (kIsWeb) {
-      js.context.callMethod('open', [whatsappUri.toString()]);
-    } else {
-      await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+    // Use external application mode which is more reliable on mobile and web
+    if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
+       // Fallback to JS for desktop browsers that block the above
+       if (kIsWeb) js.context.callMethod('open', [whatsappUri.toString()]);
     }
   }
 
@@ -467,7 +468,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-              onPressed: saveBookingToFirebase,
+              onPressed: handleBooking,
               child: const Text('Send Booking Request', style: TextStyle(color: Colors.white)),
             ),
           ],
@@ -522,7 +523,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error loading bookings: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
@@ -555,8 +556,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> requestPayment(DocumentSnapshot booking) async {
-    await FirebaseFirestore.instance.collection('bookings').doc(booking.id).update({'status': 'Approved'});
-
+    // Fix: Process WhatsApp Launch FIRST
     String rawPhone = booking['phoneNumber'];
     String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
     if (cleanPhone.startsWith('0')) {
@@ -576,11 +576,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     final Uri url = Uri.parse('https://wa.me/$cleanPhone?text=${Uri.encodeFull(message)}');
 
-    if (kIsWeb) {
-      js.context.callMethod('open', [url.toString()]);
-    } else {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
+    // Launch WhatsApp
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (kIsWeb) js.context.callMethod('open', [url.toString()]);
     }
+
+    // Update Firebase status in background
+    FirebaseFirestore.instance.collection('bookings').doc(booking.id).update({'status': 'Approved'});
   }
 
   Future<void> cancelBooking(DocumentSnapshot booking) async {
@@ -596,3 +598,4 @@ class BookingRequest {
   final int price;
   BookingRequest({required this.service, required this.category, required this.date, required this.time, required this.afterHours, required this.clientName, required this.phoneNumber, required this.location, required this.price});
 }
+
