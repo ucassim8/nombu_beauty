@@ -302,12 +302,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              decoration: InputDecoration(hintText: "Search Name...", fillColor: Colors.white, filled: true, borderRadius: BorderRadius.circular(10)),
-              onChanged: (val) => setState(() => searchQuery = val.toLowerCase()),
-            ),
-          ),
-        ),
-      ),
+              decoration: InputDecoration(
+  hintText: "Search Name...", 
+  fillColor: Colors.white, 
+  filled: true, 
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: BorderSide.none, // Keeps it clean without a thick black line
+  ),
+),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
