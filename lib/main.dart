@@ -260,6 +260,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
     if (picked != null) {
       setState(() {
         selectedTime = picked;
+        // Forced After Hours Logic
         isAfterHours = (picked.hour < 8 || picked.hour >= 18);
       });
     }
@@ -296,7 +297,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
       'clientName': clientName,
       'phoneNumber': clientPhone,
       'service': selectedService,
-      'category': widget.category,
       'location': '$selectedLocation, $selectedProvince',
       'date': formattedDate,
       'time': formattedTime,
@@ -368,7 +368,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD (EDITABLE DATE/TIME) -------------------------
+// ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
