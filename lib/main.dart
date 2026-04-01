@@ -272,7 +272,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD (Updated with Search & Earnings) -------------------------
+// ------------------------- ADMIN DASHBOARD (Updated & Fixed) -------------------------
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -287,10 +287,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     if (!_auth) {
       return Scaffold(
-        body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
-          ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
-        ])),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, 
+            children: [
+              TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
+              ElevatedButton(onPressed: () { if (_pass.text == '2478') setState(() => _auth = true); }, child: const Text('Login'))
+            ],
+          ),
+        ),
       );
     }
     return Scaffold(
@@ -303,14 +308,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-  hintText: "Search Name...", 
-  fillColor: Colors.white, 
-  filled: true, 
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: BorderSide.none, // Keeps it clean without a thick black line
-  ),
-),
+                hintText: "Search Name...", 
+                fillColor: Colors.white, 
+                filled: true, 
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (val) => setState(() => searchQuery = val.toLowerCase()),
+            ),
+          ),
+        ),
+      ), // This closing brace for AppBar was likely the culprit!
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('bookings').orderBy('timestamp', descending: true).snapshots(),
         builder: (context, snapshot) {
@@ -319,27 +329,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
           var docs = snapshot.data!.docs.where((d) => d['clientName'].toString().toLowerCase().contains(searchQuery)).toList();
           double totalPaid = 0;
           for (var d in docs) {
-            if (d['status'] == 'Approved') totalPaid += double.tryParse(d['price'].toString().replaceAll('R', '')) ?? 0;
+            if (d['status'] == 'Approved') {
+              totalPaid += double.tryParse(d['price'].toString().replaceAll('R', '')) ?? 0;
+            }
           }
 
           return Column(
             children: [
-              Container(padding: const EdgeInsets.all(15), color: Colors.pink.shade700, width: double.infinity, child: Text("Approved Earnings: R$totalPaid", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+              Container(
+                padding: const EdgeInsets.all(15), 
+                color: Colors.pink.shade700, 
+                width: double.infinity, 
+                child: Text("Approved Earnings: R$totalPaid", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
               Expanded(
-                child: ListView(children: docs.map((doc) => ListTile(
-                  title: Text(doc['clientName']),
-                  subtitle: Text("${doc['service']} - ${doc['price']}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(icon: const Icon(Icons.edit, color: Colors.blue), onPressed: () {
-                         // Quick status toggle or full edit dialog can go here
-                         doc.reference.update({'status': 'Approved'});
-                      }),
-                      IconButton(icon: const Icon(Icons.phone, color: Colors.green), onPressed: () => launchUrl(Uri.parse("tel:${doc['phoneNumber']}"))),
-                    ],
-                  ),
-                )).toList()),
+                child: ListView(
+                  children: docs.map((doc) => ListTile(
+                    title: Text(doc['clientName']),
+                    subtitle: Text("${doc['service']} - ${doc['price']}"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue), 
+                          onPressed: () => doc.reference.update({'status': 'Approved'}),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.phone, color: Colors.green), 
+                          onPressed: () => launchUrl(Uri.parse("tel:${doc['phoneNumber']}")),
+                        ),
+                      ],
+                    ),
+                  )).toList(),
+                ),
               ),
             ],
           );
