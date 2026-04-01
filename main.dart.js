@@ -87376,7 +87376,7 @@ p=g.y
 q=g.f
 n=g.w
 m=g.at?"After Hours: Yes (R100 fee applied)\n":""
-m=A.wA(B.o2,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking:\nName: "+A.k(s)+"\n\nPhone: "+A.k(p)+"\nService: "+A.k(q)+"\nLocation: "+A.k(n)+"\nDate: "+r+" at "+o+"\n"+m+"Estimated Price: R"+g.gGV()+"\n\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below. Thank you.",B.ae,!1)
+m=A.wA(B.o2,"Hello NOMBU Beauty \ud83c\udf38\n\nI'd like to request a booking:\n\nName: "+A.k(s)+"\nPhone: "+A.k(p)+"\nService: "+A.k(q)+"\nLocation: "+A.k(n)+"\nDate: "+r+" at "+o+"\n"+m+"Estimated Price: R"+g.gGV()+"\n\nFinal price to be confirmed by stylist.\n\nI will send my reference photo below. Thank you.",B.ae,!1)
 $.ay0().y8("open",["https://api.whatsapp.com/send?phone=27672412217&text="+m,"_blank"])
 m=$.dy
 l=(m==null?$.dy=$.jz():m).iZ("[DEFAULT]")
