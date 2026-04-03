@@ -428,18 +428,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   "Bank: Capitec\nName: Mrs K Siwela\nAccount: 1867785194\nType: Savings\n\n"
                   "Please send proof of payment. We can't wait to see you! 💗";
 
-              // 3. ADD THE CLEANER LOGIC HERE
-              String rawPhone = data['phoneNumber'] ?? "";
-              String cleanPhone = rawPhone.replaceAll(RegExp(r'\D'), ''); 
-              
-              if (cleanPhone.startsWith('0')) {
-                cleanPhone = '27' + cleanPhone.substring(1); 
-              } else if (!cleanPhone.startsWith('27')) {
-                cleanPhone = '27' + cleanPhone; 
-              }
+              // 3. FORCE-FIX NUMBER CLEANER
+String rawPhone = data['phoneNumber'] ?? "";
 
-              // 4. Use the NEW 'cleanPhone' in the URL
-              final String url = "https://api.whatsapp.com/send?phone=$cleanPhone&text=${Uri.encodeComponent(msg)}";
+// Remove EVERYTHING except digits (removes +, spaces, dots, etc.)
+String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
+
+if (cleanPhone.startsWith('270')) {
+  // Fixes cases where people type 27073... (removes the extra 0)
+  cleanPhone = '27' + cleanPhone.substring(3);
+} else if (cleanPhone.startsWith('0')) {
+  // Fixes 073... into 2773...
+  cleanPhone = '27' + cleanPhone.substring(1);
+} else if (!cleanPhone.startsWith('27')) {
+  // If they just typed 73..., add 27
+  cleanPhone = '27' + cleanPhone;
+}
+
+// 4. Use the wa.me format (it is much more reliable for country codes)
+final String url = "https://wa.me/$cleanPhone?text=${Uri.encodeComponent(msg)}";
+
+print("DEBUG: Final Phone Number is: $cleanPhone"); // This helps you see the result
               if (kIsWeb) js.context.callMethod('open', [url, '_blank']);
               else launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
               
