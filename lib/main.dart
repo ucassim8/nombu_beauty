@@ -329,6 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'Hair Services', 'icon': Icons.content_cut},
     {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
     {'name': 'Makeup', 'icon': Icons.brush},
+    {'name': 'Lashes', 'icon': Icons.visibility},
     {'name': 'Admin Dashboard', 'icon': Icons.admin_panel_settings},
   ];
 
@@ -1062,7 +1063,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     TextEditingController nameCtrl = TextEditingController(text: initialName);
     TextEditingController priceCtrl = TextEditingController(text: initialPrice);
 
-    List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup'];
+    List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
     String selectedCategory = categories.contains(initialCategory) ? initialCategory : categories.first;
 
     showDialog(
@@ -1136,7 +1137,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         final docs = snapshot.data!.docs;
 
-        final categoriesList = ['Hair Services', 'Hair Laundry', 'Makeup'];
+        final categoriesList = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
 
         Map<String, List<DocumentSnapshot>> groupedServices = {
           for (var cat in categoriesList) cat: []
