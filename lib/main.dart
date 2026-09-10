@@ -1172,7 +1172,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 elevation: 2,
                 child: ExpansionTile(
-                  initiallyExpanded: true,
+                  initiallyExpanded: false,
                   title: Text(
                     "$categoryName (${categoryDocs.length})",
                     style: TextStyle(
