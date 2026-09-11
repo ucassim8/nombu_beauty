@@ -665,7 +665,19 @@ class _BasketScreenState extends State<BasketScreen> {
     }
   }
 
-  void triggerWhatsApp() {
+  // Check if slot is already approved in Firestore
+  Future<bool> _isSlotAlreadyBooked(String date, String time) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('bookings')
+        .where('status', isEqualTo: 'Approved')
+        .where('date', isEqualTo: date)
+        .where('time', isEqualTo: time)
+        .get();
+
+    return snapshot.docs.isNotEmpty;
+  }
+
+  void triggerWhatsApp() async {
     if (widget.basketItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your basket is empty!')));
       return;
@@ -678,6 +690,29 @@ class _BasketScreenState extends State<BasketScreen> {
 
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
     String formattedTime = selectedTime!.format(context);
+
+    // Automatic Slot Blocker Check
+    bool isBooked = await _isSlotAlreadyBooked(formattedDate, formattedTime);
+    if (isBooked) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text("Slot Unavailable 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
+            content: Text("Sorry! $formattedDate at $formattedTime is already booked.\n\nPlease select another date or time slot."),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Got It", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
 
     String servicesText = widget.basketItems.map((item) => "- ${item['name']} (R${item['price']})").join("\n");
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
@@ -1172,7 +1207,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 elevation: 2,
                 child: ExpansionTile(
-                  initiallyExpanded: false,
+                  initiallyExpanded: false, // Starts collapsed by default
                   title: Text(
                     "$categoryName (${categoryDocs.length})",
                     style: TextStyle(
