@@ -644,6 +644,7 @@ class _BasketScreenState extends State<BasketScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   bool isAfterHours = false;
+  bool _isSubmitting = false; // 🛡️ Added to track processing state and block multi-clicks
 
   int get baseTotalPrice => widget.basketItems.fold(0, (sum, item) => sum + (item['price'] as int));
   int get finalPrice => baseTotalPrice + (isAfterHours ? 100 : 0);
@@ -678,6 +679,8 @@ class _BasketScreenState extends State<BasketScreen> {
   }
 
   void triggerWhatsApp() async {
+    if (_isSubmitting) return; // Prevent multiple execution if already running
+
     if (widget.basketItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your basket is empty!')));
       return;
@@ -688,11 +691,18 @@ class _BasketScreenState extends State<BasketScreen> {
       return;
     }
 
+    setState(() {
+      _isSubmitting = true; // Lock button / inputs immediately
+    });
+
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
     String formattedTime = selectedTime!.format(context);
 
     bool isBooked = await _isSlotAlreadyBooked(formattedDate, formattedTime);
     if (isBooked) {
+      setState(() {
+        _isSubmitting = false; // Unlock if slot unavailable
+      });
       if (mounted) {
         showDialog(
           context: context,
@@ -715,21 +725,7 @@ class _BasketScreenState extends State<BasketScreen> {
 
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
 
-    // 1. Save locally to Firestore bookings collection
-    await FirebaseFirestore.instance.collection('bookings').add({
-      'clientName': clientName,
-      'phoneNumber': clientPhone,
-      'service': servicesSummary, 
-      'location': '$selectedLocation, $selectedProvince',
-      'date': formattedDate,
-      'time': formattedTime,
-      'afterHours': isAfterHours,
-      'price': finalPrice,
-      'status': 'Pending',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-
-    // 2. Ping your Render Cloud Backend to trigger WhatsApp alert & pause AI
+    // 2. Ping your Render Cloud Backend to trigger WhatsApp alert & duplicate check guard
     try {
       print("-> Attempting to ping Render backend...");
       final response = await http.post(
@@ -747,6 +743,19 @@ class _BasketScreenState extends State<BasketScreen> {
       );
       print("-> Render backend response status: ${response.statusCode}");
       print("-> Render backend response body: ${response.body}");
+
+      if (response.statusCode == 429) {
+        // Handle backend duplicate spam warning
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please wait a moment, your booking is already being processed!')),
+          );
+        }
+        setState(() {
+          _isSubmitting = false;
+        });
+        return;
+      }
     } catch (e) {
       print("-> Cloud alert network error: $e");
     }
@@ -802,21 +811,21 @@ class _BasketScreenState extends State<BasketScreen> {
                   trailing: Text('R${item['price']}', style: const TextStyle(fontWeight: FontWeight.bold)),
                   leading: IconButton(
                     icon: const Icon(Icons.remove_circle, color: Colors.red),
-                    onPressed: () => setState(() => widget.basketItems.removeAt(idx)),
+                    onPressed: _isSubmitting ? null : () => setState(() => widget.basketItems.removeAt(idx)),
                   ),
                 );
               },
             ),
           const Divider(thickness: 2),
           const SizedBox(height: 10),
-          TextField(decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
+          TextField(enabled: !_isSubmitting, decoration: InputDecoration(labelText: 'Your Name', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), onChanged: (val) => clientName = val),
           const SizedBox(height: 10),
-          TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), keyboardType: TextInputType.phone, onChanged: (val) => clientPhone = val),
+          TextField(enabled: !_isSubmitting, decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), keyboardType: TextInputType.phone, onChanged: (val) => clientPhone = val),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
             items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-            onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
+            onChanged: _isSubmitting ? null : (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
           ),
           const SizedBox(height: 15),
           if (selectedProvince != null)
@@ -824,7 +833,7 @@ class _BasketScreenState extends State<BasketScreen> {
               decoration: InputDecoration(labelText: 'Select Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
               value: selectedLocation,
               items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
-              onChanged: (val) => setState(() => selectedLocation = val),
+              onChanged: _isSubmitting ? null : (val) => setState(() => selectedLocation = val),
             ),
           const SizedBox(height: 15),
           SwitchListTile(
@@ -836,15 +845,18 @@ class _BasketScreenState extends State<BasketScreen> {
           ),
           const SizedBox(height: 15),
           Row(children: [
-            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.calendar_today, color: Colors.pink), label: Text(selectedDate == null ? "Date" : "${selectedDate!.day}/${selectedDate!.month}"), onPressed: () => _selectDate(context))),
+            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.calendar_today, color: Colors.pink), label: Text(selectedDate == null ? "Date" : "${selectedDate!.day}/${selectedDate!.month}"), onPressed: _isSubmitting ? null : () => _selectDate(context))),
             const SizedBox(width: 10),
-            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.access_time, color: Colors.pink), label: Text(selectedTime == null ? "Time" : selectedTime!.format(context)), onPressed: () => _selectTime(context))),
+            Expanded(child: OutlinedButton.icon(icon: const Icon(Icons.access_time, color: Colors.pink), label: Text(selectedTime == null ? "Time" : selectedTime!.format(context)), onPressed: _isSubmitting ? null : () => _selectTime(context))),
           ]),
           const SizedBox(height: 35),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-            onPressed: triggerWhatsApp,
-            child: Text('Book Basket (R$finalPrice)', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            onPressed: _isSubmitting ? null : triggerWhatsApp,
+            child: Text(
+              _isSubmitting ? 'Processing Booking... Please wait ⏳' : 'Book Basket (R$finalPrice)', 
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           )
         ]),
       ),
