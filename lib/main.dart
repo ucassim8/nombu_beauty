@@ -1067,9 +1067,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () async {
+              int parsedPrice = int.tryParse(priceCtrl.text) ?? (data['price'] as num?)?.toInt() ?? 0;
+
               doc.reference.update({
                 'service': serviceCtrl.text, 
-                'price': int.parse(priceCtrl.text), 
+                'price': parsedPrice, 
                 'location': locCtrl.text,
                 'date': dateCtrl.text,
                 'time': timeCtrl.text,
@@ -1087,7 +1089,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 cleanPhone = '27' + cleanPhone;
               }
 
-              // Ping Render Backend to send the approval WhatsApp template
+              // Ping Render Backend with updated parameters including location and price
               try {
                 await http.post(
                   Uri.parse('https://nombu-backend.onrender.com/approve-booking'),
@@ -1098,6 +1100,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     'serviceName': serviceCtrl.text,
                     'appointmentDate': dateCtrl.text,
                     'appointmentTime': timeCtrl.text,
+                    'location': locCtrl.text,
+                    'price': parsedPrice,
                   }),
                 );
               } catch (e) {
