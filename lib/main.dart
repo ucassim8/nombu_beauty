@@ -731,7 +731,8 @@ class _BasketScreenState extends State<BasketScreen> {
 
     // 2. Ping your Render Cloud Backend to trigger WhatsApp alert & pause AI
     try {
-      await http.post(
+      print("-> Attempting to ping Render backend...");
+      final response = await http.post(
         Uri.parse('https://nombu-backend.onrender.com/new-booking'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
@@ -744,8 +745,10 @@ class _BasketScreenState extends State<BasketScreen> {
           'price': finalPrice,
         }),
       );
+      print("-> Render backend response status: ${response.statusCode}");
+      print("-> Render backend response body: ${response.body}");
     } catch (e) {
-      print("Cloud alert error: $e");
+      print("-> Cloud alert network error: $e");
     }
 
     widget.basketItems.clear();
