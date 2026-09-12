@@ -1,22 +1,22 @@
-Import 'dart:async';
-Import 'package:flutter/material.dart';
-Import 'package:url_launcher/url_launcher.dart';
-Import 'package:cloud_firestore/cloud_firestore.dart';
-Import 'package:firebase_core/firebase_core.dart';
-Import 'package:flutter/foundation.dart';
-Import 'firebase_options.dart';
-Import 'package:google_fonts/google_fonts.dart';
-Import 'dart:math' as math; 
-Import 'dart:json';
-Import 'package:http/http.dart' as http;
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'firebase_options.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:math' as math; 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:js' as js;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  RunApp(NombuBeautyApp());
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(NombuBeautyApp());
 }
 
 class NombuBeautyApp extends StatefulWidget {
@@ -29,7 +29,7 @@ class _NombuBeautyAppState extends State<NombuBeautyApp> {
 
   @override
   Widget build(BuildContext context) {
-    Return MaterialApp(
+    return MaterialApp(
       title: 'NOMBU Beauty',
       theme: ThemeData(
         primarySwatch: Colors.pink,
@@ -45,23 +45,23 @@ class _NombuBeautyAppState extends State<NombuBeautyApp> {
 // ------------------------- SPINNING LOGO COMPONENT -------------------------
 class SpinningLogo extends StatefulWidget {
   final Widget child;
-  Const SpinningLogo({super.key, required this.child});
+  const SpinningLogo({super.key, required this.child});
 
   @override
   State<SpinningLogo> createState() => _SpinningLogoState();
 }
 
 class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderStateMixin {
-  Late AnimationController _controller;
-  Late Animation<double> _spinAnimation;
-  Late Animation<double> _scaleAnimation;
+  late AnimationController _controller;
+  late Animation<double> _spinAnimation;
+  late Animation<double> _scaleAnimation;
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
-  Bool _isOverlayActive = false;
+  bool _isOverlayActive = false;
 
   @override
   void initState() {
-    Super.initState();
+    super.initState();
     
     _controller = AnimationController(
       duration: const Duration(milliseconds: 2500), 
@@ -87,10 +87,10 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     ]).animate(_controller);
   }
 
-  Void _showOverlay() {
-    If (_overlayEntry != null) return;
+  void _showOverlay() {
+    if (_overlayEntry != null) return;
 
-    SetState(() {
+    setState(() {
       _isOverlayActive = true;
     });
 
@@ -108,11 +108,11 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                Final matrix = Matrix4.identity()
+                final matrix = Matrix4.identity()
                   ..setEntry(3, 2, 0.002) 
                   ..rotateX(_spinAnimation.value); 
 
-                Return Transform.scale(
+                return Transform.scale(
                   scale: _scaleAnimation.value,
                   alignment: Alignment.center,
                   child: Transform(
@@ -163,29 +163,29 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
     _controller.forward(from: 0.0);
   }
 
-  Void _reverseAndRemoveOverlay() async {
-    If (_overlayEntry == null) return;
-    Await _controller.reverse(); 
+  void _reverseAndRemoveOverlay() async {
+    if (_overlayEntry == null) return;
+    await _controller.reverse(); 
     _overlayEntry?.remove();
     _overlayEntry = null;
     _controller.reset();
-    If (mounted) {
-      SetState(() {
+    if (mounted) {
+      setState(() {
         _isOverlayActive = false;
       });
     }
   }
 
   @override
-  Void dispose() {
+  void dispose() {
     _overlayEntry?.remove();
     _controller.dispose();
-    Super.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Return CompositedTransformTarget(
+    return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(
         onTap: _showOverlay,
@@ -206,7 +206,7 @@ class BookingPoliciesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Booking Policies'),
         backgroundColor: Colors.pink.shade400,
@@ -271,12 +271,12 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  Late AnimationController _controller;
-  Late Animation<double> _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
-    Super.initState();
+    super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
@@ -286,11 +286,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   @override
-  Void dispose() { _controller.dispose(); super.dispose(); }
+  void dispose() { _controller.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
-    Return Scaffold(
+    return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
@@ -336,20 +336,20 @@ class _HomeScreenState extends State<HomeScreen> {
   final String instagramUrl = "https://www.instagram.com/nombu.beauty?igsh=MzRlODBiNWFlZA==";
   final String tiktokUrl = "https://www.tiktok.com/@nombu.beauty?_r=1&_t=ZS-96uL017nPM7";
 
-  Void _launchSocial(String url) async {
-    If (kIsWeb) {
-      Js.context.callMethod('open', [url, '_blank']);
+  void _launchSocial(String url) async {
+    if (kIsWeb) {
+      js.context.callMethod('open', [url, '_blank']);
     } else {
-      Final Uri uri = Uri.parse(url);
-      If (await canLaunchUrl(uri)) {
-        Await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    Return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
@@ -400,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ).then((_) => setState(() {}));
                 },
               ),
-              If (widget.basketItems.isNotEmpty)
+              if (widget.basketItems.isNotEmpty)
                 Positioned(
                   right: 6,
                   top: 6,
@@ -428,13 +428,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GridView.builder(
                 itemCount: categories.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  CrossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 0.9,
+                  crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 0.9,
                 ),
                 itemBuilder: (context, index) {
-                  Final category = categories[index];
-                  Return GestureDetector(
+                  final category = categories[index];
+                  return GestureDetector(
                     onTap: () {
-                      If (category['name'] == 'Admin Dashboard') {
+                      if (category['name'] == 'Admin Dashboard') {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboard()));
                       } else {
                         Navigator.push(
@@ -525,7 +525,7 @@ class ServiceScreen extends StatefulWidget {
 class _ServiceScreenState extends State<ServiceScreen> {
   @override
   Widget build(BuildContext context) {
-    Return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(widget.category), 
         backgroundColor: Colors.pink.shade400,
@@ -544,30 +544,30 @@ class _ServiceScreenState extends State<ServiceScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('services').snapshots(),
         builder: (context, snapshot) {
-          If (snapshot.hasError) {
-            Return Center(
+          if (snapshot.hasError) {
+            return Center(
               child: Text('Error loading services.', style: TextStyle(color: Colors.pink.shade900)),
             );
           }
 
-          If (snapshot.connectionState == ConnectionState.waiting) {
-            Return Center(
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
               child: CircularProgressIndicator(color: Colors.pink.shade400),
             );
           }
 
-          Final allDocs = snapshot.data?.docs ?? [];
+          final allDocs = snapshot.data?.docs ?? [];
 
-          Final docs = allDocs.where((doc) {
-            Final data = doc.data() as Map<String, dynamic>;
-            Final rawCategory = data['category'] ?? data['Category'] ?? '';
-            Final docCategory = rawCategory.toString().trim().toLowerCase();
-            Final targetCategory = widget.category.trim().toLowerCase();
-            Return docCategory == targetCategory;
+          final docs = allDocs.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final rawCategory = data['category'] ?? data['Category'] ?? '';
+            final docCategory = rawCategory.toString().trim().toLowerCase();
+            final targetCategory = widget.category.trim().toLowerCase();
+            return docCategory == targetCategory;
           }).toList();
 
-          If (docs.isEmpty) {
-            Return Center(
+          if (docs.isEmpty) {
+            return Center(
               child: Text(
                 'No services found in this category.',
                 style: TextStyle(color: Colors.pink.shade900, fontSize: 16),
@@ -575,24 +575,24 @@ class _ServiceScreenState extends State<ServiceScreen> {
             );
           }
 
-          Return ListView.builder(
+          return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              Final data = docs[index].data() as Map<String, dynamic>;
+              final data = docs[index].data() as Map<String, dynamic>;
               
-              Final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
-              Final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
-              Final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
+              final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
+              final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+              final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
 
-              Final serviceMap = {
+              final serviceMap = {
                 'name': serviceName,
                 'price': servicePrice,
               };
 
-              Final isInBasket = widget.basketItems.any((item) => item['name'] == serviceName);
+              final isInBasket = widget.basketItems.any((item) => item['name'] == serviceName);
 
-              Return Card(
+              return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 elevation: 3,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -605,11 +605,11 @@ class _ServiceScreenState extends State<ServiceScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
-                      SetState(() {
-                        If (isInBasket) {
-                          Widget.basketItems.removeWhere((item) => item['name'] == serviceName);
+                      setState(() {
+                        if (isInBasket) {
+                          widget.basketItems.removeWhere((item) => item['name'] == serviceName);
                         } else {
-                          Widget.basketItems.add(serviceMap);
+                          widget.basketItems.add(serviceMap);
                         }
                       });
                     },
@@ -643,80 +643,80 @@ class _BasketScreenState extends State<BasketScreen> {
   String? selectedProvince, selectedLocation, clientName, clientPhone;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  Bool isAfterHours = false;
+  bool isAfterHours = false;
 
-  Int get baseTotalPrice => widget.basketItems.fold(0, (sum, item) => sum + (item['price'] as int));
-  Int get finalPrice => baseTotalPrice + (isAfterHours ? 100 : 0);
+  int get baseTotalPrice => widget.basketItems.fold(0, (sum, item) => sum + (item['price'] as int));
+  int get finalPrice => baseTotalPrice + (isAfterHours ? 100 : 0);
 
   Future<void> _selectDate(BuildContext context) async {
-    Final DateTime? picked = await showDatePicker(
-      Context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027),
+    final DateTime? picked = await showDatePicker(
+      context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2027),
     );
-    If (picked != null) setState(() => selectedDate = picked);
+    if (picked != null) setState(() => selectedDate = picked);
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    Final TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    If (picked != null) {
-      SetState(() {
-        SelectedTime = picked;
-        IsAfterHours = (picked.hour < 8 || picked.hour >= 18);
+    final TimeOfDay? picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (picked != null) {
+      setState(() {
+        selectedTime = picked;
+        isAfterHours = (picked.hour < 8 || picked.hour >= 18);
       });
     }
   }
 
   // Check if slot is already approved in Firestore
   Future<bool> _isSlotAlreadyBooked(String date, String time) async {
-    Final snapshot = await FirebaseFirestore.instance
+    final snapshot = await FirebaseFirestore.instance
         .collection('bookings')
         .where('status', isEqualTo: 'Approved')
         .where('date', isEqualTo: date)
         .where('time', isEqualTo: time)
         .get();
 
-    Return snapshot.docs.isNotEmpty;
+    return snapshot.docs.isNotEmpty;
   }
 
-  Void triggerWhatsApp() async {
-    If (widget.basketItems.isEmpty) {
+  void triggerWhatsApp() async {
+    if (widget.basketItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your basket is empty!')));
-      Return;
+      return;
     }
-    If (clientName == null || clientPhone == null || selectedProvince == null || 
-        SelectedLocation == null || selectedDate == null || selectedTime == null) {
+    if (clientName == null || clientPhone == null || selectedProvince == null || 
+        selectedLocation == null || selectedDate == null || selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
-      Return;
+      return;
     }
 
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
     String formattedTime = selectedTime!.format(context);
 
-    Bool isBooked = await _isSlotAlreadyBooked(formattedDate, formattedTime);
-    If (isBooked) {
-      If (mounted) {
-        ShowDialog(
-          Context: context,
-          Builder: (context) => AlertDialog(
-            Shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            Title: const Text("Slot Unavailable 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
-            Content: Text("Sorry! $formattedDate at $formattedTime is already booked.\n\nPlease select another date or time slot."),
-            Actions: [
+    bool isBooked = await _isSlotAlreadyBooked(formattedDate, formattedTime);
+    if (isBooked) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text("Slot Unavailable 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
+            content: Text("Sorry! $formattedDate at $formattedTime is already booked.\n\nPlease select another date or time slot."),
+            actions: [
               ElevatedButton(
-                Style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-                OnPressed: () => Navigator.pop(context),
-                Child: const Text("Got It", style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Got It", style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
         );
       }
-      Return;
+      return;
     }
 
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
 
     // 1. Save locally to Firestore bookings collection
-    Await FirebaseFirestore.instance.collection('bookings').add({
+    await FirebaseFirestore.instance.collection('bookings').add({
       'clientName': clientName,
       'phoneNumber': clientPhone,
       'service': servicesSummary, 
@@ -730,11 +730,11 @@ class _BasketScreenState extends State<BasketScreen> {
     });
 
     // 2. Ping your Render Cloud Backend to trigger WhatsApp alert & pause AI
-    Try {
-      Await http.post(
+    try {
+      await http.post(
         Uri.parse('https://nombu-backend.onrender.com/new-booking'),
-        Headers: {"Content-Type": "application/json"},
-        Body: jsonEncode({
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
           'clientName': clientName,
           'phoneNumber': clientPhone,
           'service': servicesSummary,
@@ -745,26 +745,26 @@ class _BasketScreenState extends State<BasketScreen> {
         }),
       );
     } catch (e) {
-      Print("Cloud alert error: $e");
+      print("Cloud alert error: $e");
     }
 
-    Widget.basketItems.clear();
+    widget.basketItems.clear();
 
-    If (mounted) {
-      ShowDialog(
-        Context: context,
-        Builder: (context) => AlertDialog(
-          Shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          Title: const Text("Booking Requested! 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
-          Content: const Text("Your booking has been successfully submitted to management. A stylist will review and message you shortly!"),
-          Actions: [
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text("Booking Requested! 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text("Your booking has been successfully submitted to management. A stylist will review and message you shortly!"),
+          actions: [
             ElevatedButton(
-              Style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-              OnPressed: () {
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+              onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context); // Return to home
               },
-              Child: const Text("Okay", style: TextStyle(color: Colors.white)),
+              child: const Text("Okay", style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -774,32 +774,32 @@ class _BasketScreenState extends State<BasketScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Return Scaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('My Basket Summary'), backgroundColor: Colors.pink.shade400),
       body: SingleChildScrollView(
-        Padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(children: [
-          If (widget.basketItems.isEmpty)
+          if (widget.basketItems.isEmpty)
             Card(
-              Elevation: 2,
-              Child: Padding(
+              elevation: 2,
+              child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text('Your basket is empty. Go add some styling services! 🌸', style: TextStyle(color: Colors.pink.shade900)),
               ),
             )
           else
             ListView.builder(
-              ShrinkWrap: true,
-              Physics: const NeverScrollableScrollPhysics(),
-              ItemCount: widget.basketItems.length,
-              ItemBuilder: (context, idx) {
-                Final item = widget.basketItems[idx];
-                Return ListTile(
-                  Title: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Trailing: Text('R${item['price']}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Leading: IconButton(
-                    Icon: const Icon(Icons.remove_circle, color: Colors.red),
-                    OnPressed: () => setState(() => widget.basketItems.removeAt(idx)),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.basketItems.length,
+              itemBuilder: (context, idx) {
+                final item = widget.basketItems[idx];
+                return ListTile(
+                  title: Text(item['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                  trailing: Text('R${item['price']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  leading: IconButton(
+                    icon: const Icon(Icons.remove_circle, color: Colors.red),
+                    onPressed: () => setState(() => widget.basketItems.removeAt(idx)),
                   ),
                 );
               },
@@ -811,25 +811,25 @@ class _BasketScreenState extends State<BasketScreen> {
           TextField(decoration: InputDecoration(labelText: 'WhatsApp Number', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))), keyboardType: TextInputType.phone, onChanged: (val) => clientPhone = val),
           const SizedBox(height: 15),
           DropdownButtonFormField<String>(
-            Decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-            Items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-            OnChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
+            decoration: InputDecoration(labelText: 'Select Province', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+            items: provinceLocations.keys.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+            onChanged: (val) => setState(() { selectedProvince = val; selectedLocation = null; }),
           ),
           const SizedBox(height: 15),
-          If (selectedProvince != null)
+          if (selectedProvince != null)
             DropdownButtonFormField<String>(
-              Decoration: InputDecoration(labelText: 'Select Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-              Value: selectedLocation,
-              Items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
-              OnChanged: (val) => setState(() => selectedLocation = val),
+              decoration: InputDecoration(labelText: 'Select Location', filled: true, fillColor: Colors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+              value: selectedLocation,
+              items: provinceLocations[selectedProvince]!.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
+              onChanged: (val) => setState(() => selectedLocation = val),
             ),
           const SizedBox(height: 15),
           SwitchListTile(
-            Title: const Text("After Hours (R100 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
-            Subtitle: Text(isAfterHours ? "Applied based on time selection." : "Slots before 8AM or after 6PM"),
-            Value: isAfterHours,
-            ActiveColor: Colors.pink,
-            OnChanged: null, 
+            title: const Text("After Hours (R100 Fee)", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink)),
+            subtitle: Text(isAfterHours ? "Applied based on time selection." : "Slots before 8AM or after 6PM"),
+            value: isAfterHours,
+            activeColor: Colors.pink,
+            onChanged: null, 
           ),
           const SizedBox(height: 15),
           Row(children: [
@@ -839,9 +839,9 @@ class _BasketScreenState extends State<BasketScreen> {
           ]),
           const SizedBox(height: 35),
           ElevatedButton(
-            Style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-            OnPressed: triggerWhatsApp,
-            Child: Text('Book Basket (R$finalPrice)', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+            onPressed: triggerWhatsApp,
+            child: Text('Book Basket (R$finalPrice)', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           )
         ]),
       ),
@@ -851,18 +851,18 @@ class _BasketScreenState extends State<BasketScreen> {
 
 // ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
-  Const AdminDashboard({super.key});
+  const AdminDashboard({super.key});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  Bool _auth = false;
-  Final TextEditingController _pass = TextEditingController();
-  Int? _selectedRevenueYear;
+  bool _auth = false;
+  final TextEditingController _pass = TextEditingController();
+  int? _selectedRevenueYear;
 
-  Final List<Map<String, String>> premiumQuotes = [
+  final List<Map<String, String>> premiumQuotes = [
     {"q": "You are doing amazing things today, my love! Let's conquer this dashboard.", "a": "Hubby"},
     {"q": "Just a reminder that you're the hardest worker I know, and I'm so proud of you.", "a": "Hubby"},
     {"q": "Take a deep breath, you've got this beautiful! 🌸", "a": "Hubby"},
@@ -891,141 +891,141 @@ class _AdminDashboardState extends State<AdminDashboard> {
   ];
 
   DateTime _parseBookingDate(String dateStr) {
-    Try {
+    try {
       List<String> parts = dateStr.split('/');
-      If (parts.length == 3) {
-        Return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      if (parts.length == 3) {
+        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
       }
     } catch (e) {
-      Print("Error parsing date: $dateStr");
+      print("Error parsing date: $dateStr");
     }
-    Return DateTime(2099); 
+    return DateTime(2099); 
   }
 
-  Bool _isDateInPast(String dateStr) {
-    Final bookingDate = _parseBookingDate(dateStr);
-    Final now = DateTime.now();
-    Final today = DateTime(now.year, now.month, now.day);
-    Return bookingDate.isBefore(today);
+  bool _isDateInPast(String dateStr) {
+    final bookingDate = _parseBookingDate(dateStr);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return bookingDate.isBefore(today);
   }
 
   Future<void> _checkOverdueBookingsAndNudge() async {
-    Try {
-      Final snapshot = await FirebaseFirestore.instance.collection('bookings').get();
-      Int overdueCount = 0;
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('bookings').get();
+      int overdueCount = 0;
 
-      For (var doc in snapshot.docs) {
-        Final data = doc.data();
-        Final status = data['status'] ?? 'Pending';
-        Final dateStr = data['date'] ?? '';
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final status = data['status'] ?? 'Pending';
+        final dateStr = data['date'] ?? '';
 
-        If (status == 'Approved' && _isDateInPast(dateStr)) {
-          OverdueCount++;
+        if (status == 'Approved' && _isDateInPast(dateStr)) {
+          overdueCount++;
         }
       }
 
-      If (overdueCount > 0 && mounted) {
-        ShowDialog(
-          Context: context,
-          Builder: (context) => AlertDialog(
-            Shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            Title: Row(
-              Children: [
+      if (overdueCount > 0 && mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
                 Icon(Icons.assignment_late, color: Colors.orange.shade700, size: 28),
                 const SizedBox(width: 10),
                 const Text("Pending Completion", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
-            Content: Text(
+            content: Text(
               "Hey Baby 🌸 You have $overdueCount approved booking${overdueCount > 1 ? 's' : ''} from past dates that haven't been marked completed yet.\n\n"
               "Please check the Active list and tap the double check mark (✔✔) for appointments that were finished so revenue updates!",
               style: const TextStyle(fontSize: 14, height: 1.4),
             ),
-            Actions: [
+            actions: [
               ElevatedButton(
-                Style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-                OnPressed: () => Navigator.pop(context),
-                Child: const Text("Got It! 💕", style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Got It! 💕", style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
         );
       }
     } catch (e) {
-      Print("Error checking overdue bookings: $e");
+      print("Error checking overdue bookings: $e");
     }
   }
 
-  Void _fetchAndShowQuote() {
-    Final random = math.Random();
-    Final selected = premiumQuotes[random.nextInt(premiumQuotes.length)];
+  void _fetchAndShowQuote() {
+    final random = math.Random();
+    final selected = premiumQuotes[random.nextInt(premiumQuotes.length)];
     String finalQuote = selected["q"]!;
     String author = selected["a"]!;
 
-    If (mounted) {
-      ShowDialog(
-        Context: context,
-        BarrierDismissible: true, 
-        Builder: (BuildContext context) {
-          Return Dialog(
-            Shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            Elevation: 16,
-            Child: Container(
-              Padding: const EdgeInsets.all(24),
-              Decoration: BoxDecoration(
-                Radius: BorderRadius.circular(24),
-                Gradient: LinearGradient(
-                  Colors: [Colors.pink.shade50, Colors.white],
-                  Begin: Alignment.topLeft,
-                  End: Alignment.bottomRight,
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: true, 
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            elevation: 16,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  colors: [Colors.pink.shade50, Colors.white],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
-              Child: Column(
-                MainAxisSize: MainAxisSize.min,
-                Children: [
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Icon(Icons.favorite, color: Colors.pink.shade400, size: 45),
                   const SizedBox(height: 16),
                   Text(
                     "Hey Beautiful! ✨",
-                    Style: GoogleFonts.playfairDisplay(
-                      FontSize: 22,
-                      FontWeight: FontWeight.bold,
-                      Color: Colors.pink.shade800,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.pink.shade800,
                     ),
                   ),
                   const SizedBox(height: 14),
                   Text(
                     '"$finalQuote"',
-                    TextAlign: TextAlign.center,
-                    Style: GoogleFonts.lato(
-                      FontSize: 16,
-                      FontStyle: FontStyle.italic,
-                      Color: Colors.grey.shade800,
-                      Height: 1.4,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.lato(
+                      fontSize: 16,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey.shade800,
+                      height: 1.4,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     "- $author",
-                    Style: TextStyle(
-                      FontSize: 13,
-                      FontWeight: FontWeight.w600,
-                      Color: Colors.pink.shade300,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.pink.shade300,
                     ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    OnPressed: () {
+                    onPressed: () {
                       Navigator.of(context).pop();
                       _checkOverdueBookingsAndNudge();
                     },
-                    Style: ElevatedButton.styleFrom(
-                      BackgroundColor: Colors.pink.shade400,
-                      ForegroundColor: Colors.white,
-                      Shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      Padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink.shade400,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    Child: const Text("Let's Get To Work! 💕"),
+                    child: const Text("Let's Get To Work! 💕"),
                   ),
                 ],
               ),
@@ -1036,7 +1036,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  Void _showEditDialog(DocumentSnapshot doc) {
+  void _showEditDialog(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     TextEditingController serviceCtrl = TextEditingController(text: data['service']);
     TextEditingController priceCtrl = TextEditingController(text: data['price'].toString());
@@ -1044,14 +1044,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
     TextEditingController dateCtrl = TextEditingController(text: data['date']);
     TextEditingController timeCtrl = TextEditingController(text: data['time']);
 
-    ShowDialog(
-      Context: context,
-      Builder: (context) => AlertDialog(
-        Title: const Text("Edit & Approve"),
-        Content: SingleChildScrollView(
-          Child: Column(
-            MainAxisSize: MainAxisSize.min,
-            Children: [
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Edit & Approve"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               TextField(controller: serviceCtrl, decoration: const InputDecoration(labelText: "Service")),
               TextField(controller: priceCtrl, decoration: const InputDecoration(labelText: "Price (R)"), keyboardType: TextInputType.number),
               TextField(controller: locCtrl, decoration: const InputDecoration(labelText: "Location")),
@@ -1060,11 +1060,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ],
           ),
         ),
-        Actions: [
+        actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
           ElevatedButton(
-            OnPressed: () async {
-              Doc.reference.update({
+            onPressed: () async {
+              doc.reference.update({
                 'service': serviceCtrl.text, 
                 'price': int.parse(priceCtrl.text), 
                 'location': locCtrl.text,
@@ -1076,20 +1076,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
               String rawPhone = data['phoneNumber'] ?? "";
               String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
 
-              If (cleanPhone.startsWith('270')) {
-                CleanPhone = '27' + cleanPhone.substring(3);
+              if (cleanPhone.startsWith('270')) {
+                cleanPhone = '27' + cleanPhone.substring(3);
               } else if (cleanPhone.startsWith('0')) {
-                CleanPhone = '27' + cleanPhone.substring(1);
+                cleanPhone = '27' + cleanPhone.substring(1);
               } else if (!cleanPhone.startsWith('27')) {
-                CleanPhone = '27' + cleanPhone;
+                cleanPhone = '27' + cleanPhone;
               }
 
               // Ping Render Backend to send the approval WhatsApp template
-              Try {
-                Await http.post(
+              try {
+                await http.post(
                   Uri.parse('https://nombu-backend.onrender.com/approve-booking'),
-                  Headers: {"Content-Type": "application/json"},
-                  Body: jsonEncode({
+                  headers: {"Content-Type": "application/json"},
+                  body: jsonEncode({
                     'clientPhone': cleanPhone,
                     'clientName': data['clientName'],
                     'serviceName': serviceCtrl.text,
@@ -1098,25 +1098,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   }),
                 );
               } catch (e) {
-                Print("Approval request error: $e");
+                print("Approval request error: $e");
               }
               
-              If (context.mounted) Navigator.pop(context);
+              if (context.mounted) Navigator.pop(context);
             },
-            Child: const Text("Approve & Send WhatsApp"),
+            child: const Text("Approve & Send WhatsApp"),
           ),
         ],
       ),
     );
   }
 
-  Void _showAddOrEditServiceDialog(DocumentSnapshot? doc) {
-    Final bool isEditing = doc != null;
-    Final Map<String, dynamic> data = isEditing ? (doc.data() as Map<String, dynamic>? ?? {}) : {};
+  void _showAddOrEditServiceDialog(DocumentSnapshot? doc) {
+    final bool isEditing = doc != null;
+    final Map<String, dynamic> data = isEditing ? (doc.data() as Map<String, dynamic>? ?? {}) : {};
 
-    Final initialName = (data['name'] ?? data['Name'] ?? '').toString();
-    Final initialPrice = (data['price'] ?? data['Price'] ?? data['Price '] ?? '').toString();
-    Final initialCategory = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
+    final initialName = (data['name'] ?? data['Name'] ?? '').toString();
+    final initialPrice = (data['price'] ?? data['Price'] ?? data['Price '] ?? '').toString();
+    final initialCategory = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
 
     TextEditingController nameCtrl = TextEditingController(text: initialName);
     TextEditingController priceCtrl = TextEditingController(text: initialPrice);
@@ -1124,61 +1124,61 @@ class _AdminDashboardState extends State<AdminDashboard> {
     List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
     String selectedCategory = categories.contains(initialCategory) ? initialCategory : categories.first;
 
-    ShowDialog(
-      Context: context,
-      Builder: (context) => StatefulBuilder(
-        Builder: (context, setDialogState) => AlertDialog(
-          Title: Text(isEditing ? "Edit Service" : "Add New Service"),
-          Content: Column(
-            MainAxisSize: MainAxisSize.min,
-            Children: [
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isEditing ? "Edit Service" : "Add New Service"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               TextField(
-                Controller: nameCtrl,
-                Decoration: const InputDecoration(labelText: "Service Name"),
+                controller: nameCtrl,
+                decoration: const InputDecoration(labelText: "Service Name"),
               ),
               TextField(
-                Controller: priceCtrl,
-                Decoration: const InputDecoration(labelText: "Price (R)"),
-                KeyboardType: TextInputType.number,
+                controller: priceCtrl,
+                decoration: const InputDecoration(labelText: "Price (R)"),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                Value: selectedCategory,
-                Decoration: const InputDecoration(labelText: "Category"),
-                Items: categories
+                value: selectedCategory,
+                decoration: const InputDecoration(labelText: "Category"),
+                items: categories
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
-                OnChanged: (val) {
-                  If (val != null) setDialogState(() => selectedCategory = val);
+                onChanged: (val) {
+                  if (val != null) setDialogState(() => selectedCategory = val);
                 },
               ),
             ],
           ),
-          Actions: [
+          actions: [
             TextButton(
-              OnPressed: () => Navigator.pop(context),
-              Child: const Text("Cancel"),
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
-              Style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-              OnPressed: () async {
-                Int parsedPrice = int.tryParse(priceCtrl.text) ?? 0;
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+              onPressed: () async {
+                int parsedPrice = int.tryParse(priceCtrl.text) ?? 0;
 
-                Final updatedData = {
+                final updatedData = {
                   'name': nameCtrl.text.trim(),
                   'price': parsedPrice,
                   'category': selectedCategory,
                 };
 
-                If (isEditing && doc != null) {
-                  Await doc.reference.set(updatedData, SetOptions(merge: true));
+                if (isEditing && doc != null) {
+                  await doc.reference.set(updatedData, SetOptions(merge: true));
                 } else {
-                  Await FirebaseFirestore.instance.collection('services').add(updatedData);
+                  await FirebaseFirestore.instance.collection('services').add(updatedData);
                 }
 
-                If (context.mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               },
-              Child: Text(isEditing ? "Update" : "Save", style: const TextStyle(color: Colors.white)),
+              child: Text(isEditing ? "Update" : "Save", style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -1188,88 +1188,88 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // ------------------------- CATEGORIZED SERVICES MANAGER -------------------------
   Widget _buildServicesManager() {
-    Return StreamBuilder<QuerySnapshot>(
-      Stream: FirebaseFirestore.instance.collection('services').snapshots(),
-      Builder: (context, snapshot) {
-        If (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('services').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
-        Final docs = snapshot.data!.docs;
+        final docs = snapshot.data!.docs;
 
-        Final categoriesList = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
+        final categoriesList = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
 
         Map<String, List<DocumentSnapshot>> groupedServices = {
-          For (var cat in categoriesList) cat: []
+          for (var cat in categoriesList) cat: []
         };
 
-        For (var doc in docs) {
-          Final data = doc.data() as Map<String, dynamic>;
-          Final rawCat = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
+        for (var doc in docs) {
+          final data = doc.data() as Map<String, dynamic>;
+          final rawCat = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
 
           String matchedCategory = categoriesList.firstWhere(
             (c) => c.toLowerCase() == rawCat.trim().toLowerCase(),
-            OrElse: () => 'Hair Services',
+            orElse: () => 'Hair Services',
           );
 
-          GroupedServices[matchedCategory]!.add(doc);
+          groupedServices[matchedCategory]!.add(doc);
         }
 
-        Return Scaffold(
-          FloatingActionButton: FloatingActionButton.extended(
-            BackgroundColor: Colors.pink.shade400,
-            Icon: const Icon(Icons.add, color: Colors.white),
-            Label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
-            OnPressed: () => _showAddOrEditServiceDialog(null),
+        return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor: Colors.pink.shade400,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
+            onPressed: () => _showAddOrEditServiceDialog(null),
           ),
-          Body: ListView(
-            Padding: const EdgeInsets.all(12),
-            Children: categoriesList.map((categoryName) {
-              Final categoryDocs = groupedServices[categoryName] ?? [];
+          body: ListView(
+            padding: const EdgeInsets.all(12),
+            children: categoriesList.map((categoryName) {
+              final categoryDocs = groupedServices[categoryName] ?? [];
 
-              Return Card(
-                Margin: const EdgeInsets.only(bottom: 12),
-                Shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                Elevation: 2,
-                Child: ExpansionTile(
-                  InitiallyExpanded: false, 
-                  Title: Text(
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                elevation: 2,
+                child: ExpansionTile(
+                  initiallyExpanded: false, 
+                  title: Text(
                     "$categoryName (${categoryDocs.length})",
-                    Style: TextStyle(
-                      FontWeight: FontWeight.bold,
-                      FontSize: 16,
-                      Color: Colors.pink.shade800,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.pink.shade800,
                     ),
                   ),
-                  Children: categoryDocs.isEmpty
+                  children: categoryDocs.isEmpty
                       ? [
                           Padding(
-                            Padding: const EdgeInsets.all(16.0),
-                            Child: Text(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
                               "No services under $categoryName yet.",
-                              Style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                              style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
                             ),
                           )
                         ]
                       : categoryDocs.map((doc) {
-                          Final data = doc.data() as Map<String, dynamic>;
-                          Final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed').toString();
-                          Final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+                          final data = doc.data() as Map<String, dynamic>;
+                          final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed').toString();
+                          final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
 
-                          Return ListTile(
-                            Title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                            Subtitle: Text(
+                          return ListTile(
+                            title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                            subtitle: Text(
                               "R$priceVal",
-                              Style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
                             ),
-                            Trailing: Row(
-                              MainAxisSize: MainAxisSize.min,
-                              Children: [
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                                 IconButton(
-                                  Icon: const Icon(Icons.edit, color: Colors.blue),
-                                  OnPressed: () => _showAddOrEditServiceDialog(doc),
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _showAddOrEditServiceDialog(doc),
                                 ),
                                 IconButton(
-                                  Icon: const Icon(Icons.delete, color: Colors.red),
-                                  OnPressed: () => doc.reference.delete(),
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => doc.reference.delete(),
                                 ),
                               ],
                             ),
@@ -1286,21 +1286,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    If (!_auth) {
-      Return Scaffold(
-        AppBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.pink.shade400),
-        Body: Center(child: Padding(
-          Padding: const EdgeInsets.all(30.0),
-          Child: Column(mainAxisSize: MainAxisSize.min, children: [
+    if (!_auth) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Admin Login'), backgroundColor: Colors.pink.shade400),
+        body: Center(child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.lock_outline, size: 60, color: Colors.pink),
             const SizedBox(height: 20),
             TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
             ElevatedButton(
-              Style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), 
-              OnPressed: () { 
-                If (_pass.text == '2478') {
-                  SetState(() {
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), 
+              onPressed: () { 
+                if (_pass.text == '2478') {
+                  setState(() {
                     _auth = true;
                   });
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1308,55 +1308,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   });
                 } 
               },
-              Child: const Text('Login', style: TextStyle(color: Colors.white)),
+              child: const Text('Login', style: TextStyle(color: Colors.white)),
             ),
           ]),
         )),
       );
     }
 
-    Return DefaultTabController(
-      Length: 3,
-      Child: Scaffold(
-        AppBar: AppBar(
-          Title: const Text('Bookings & Menu Manager'),
-          BackgroundColor: Colors.pink.shade400,
-          Actions: [
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Bookings & Menu Manager'),
+          backgroundColor: Colors.pink.shade400,
+          actions: [
             IconButton(
-              Icon: const Icon(Icons.logout),
-              OnPressed: () {
-                SetState(() {
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                setState(() {
                   _auth = false;
                   _pass.clear();
                 });
               },
             )
           ],
-          Bottom: const TabBar(
-            LabelColor: Colors.white,
-            UnselectedLabelColor: Colors.white70,
-            IndicatorColor: Colors.white,
-            Tabs: [
+          bottom: const TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            tabs: [
               Tab(icon: Icon(Icons.calendar_today), text: "Active"),
               Tab(icon: Icon(Icons.history), text: "History"),
               Tab(icon: Icon(Icons.edit_note), text: "Services"),
             ],
           ),
         ),
-        Body: TabBarView(
-          Children: [
+        body: TabBarView(
+          children: [
             StreamBuilder<QuerySnapshot>(
-              Stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
-              Builder: (context, snapshot) {
-                If (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-                Return _buildBookingList(snapshot.data!.docs, false);
+              stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                return _buildBookingList(snapshot.data!.docs, false);
               },
             ),
             StreamBuilder<QuerySnapshot>(
-              Stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
-              Builder: (context, snapshot) {
-                If (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-                Return _buildBookingList(snapshot.data!.docs, true);
+              stream: FirebaseFirestore.instance.collection('bookings').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                return _buildBookingList(snapshot.data!.docs, true);
               },
             ),
             _buildServicesManager(),
@@ -1367,42 +1367,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }         
 
   Widget _buildBookingList(List<DocumentSnapshot> docs, bool isHistory) {
-    If (!isHistory) {
+    if (!isHistory) {
       List<DocumentSnapshot> activeList = docs.where((doc) {
         String status = (doc.data() as Map<String, dynamic>)['status'] ?? 'Pending';
-        Return status == 'Pending' || status == 'Approved';
+        return status == 'Pending' || status == 'Approved';
       }).toList();
 
-      ActiveList.sort((a, b) {
+      activeList.sort((a, b) {
         Map<String, dynamic> dataA = a.data() as Map<String, dynamic>;
         Map<String, dynamic> dataB = b.data() as Map<String, dynamic>;
 
         String statusA = dataA['status'] ?? 'Pending';
         String statusB = dataB['status'] ?? 'Pending';
 
-        If (statusA == 'Pending' && statusB != 'Pending') return -1;
-        If (statusB == 'Pending' && statusA != 'Pending') return 1;
+        if (statusA == 'Pending' && statusB != 'Pending') return -1;
+        if (statusB == 'Pending' && statusA != 'Pending') return 1;
 
-        If (statusA == 'Pending' && statusB == 'Pending') {
+        if (statusA == 'Pending' && statusB == 'Pending') {
           Timestamp tA = dataA['timestamp'] ?? Timestamp.now();
           Timestamp tB = dataB['timestamp'] ?? Timestamp.now();
-          Return tB.compareTo(tA);
+          return tB.compareTo(tA);
         }
 
         DateTime dateA = _parseBookingDate(dataA['date'] ?? "");
         DateTime dateB = _parseBookingDate(dataB['date'] ?? "");
-        Return dateA.compareTo(dateB);
+        return dateA.compareTo(dateB);
       });
 
-      If (activeList.isEmpty) {
-        Return Center(
-          Child: Text('No active client bookings!', style: TextStyle(color: Colors.pink.shade900, fontSize: 16)),
+      if (activeList.isEmpty) {
+        return Center(
+          child: Text('No active client bookings!', style: TextStyle(color: Colors.pink.shade900, fontSize: 16)),
         );
       }
 
-      Return ListView.builder(
-        ItemCount: activeList.length,
-        ItemBuilder: (context, index) => _buildBookingCard(activeList[index], false),
+      return ListView.builder(
+        itemCount: activeList.length,
+        itemBuilder: (context, index) => _buildBookingCard(activeList[index], false),
       );
     }
 
@@ -1413,108 +1413,108 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Map<int, Map<String, int>> earningsByYear = {};
     List<String> monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    For (var doc in completedList) {
+    for (var doc in completedList) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       
-      Var priceVal = data['price'];
-      Int price = 0;
-      If (priceVal is int) price = priceVal;
+      var priceVal = data['price'];
+      int price = 0;
+      if (priceVal is int) price = priceVal;
       else if (priceVal is String) price = int.tryParse(priceVal) ?? 0;
 
       String dateStr = data['date'] ?? "";
       List<String> parts = dateStr.split('/');
       
-      If (parts.length == 3) {
-        Int monthIdx = int.tryParse(parts[1]) ?? 0;
-        Int year = int.tryParse(parts[2]) ?? DateTime.now().year;
+      if (parts.length == 3) {
+        int monthIdx = int.tryParse(parts[1]) ?? 0;
+        int year = int.tryParse(parts[2]) ?? DateTime.now().year;
 
-        If (monthIdx >= 1 && monthIdx <= 12) {
-          EarningsByYear.putIfAbsent(year, () => {});
+        if (monthIdx >= 1 && monthIdx <= 12) {
+          earningsByYear.putIfAbsent(year, () => {});
           String monthName = monthNames[monthIdx];
-          EarningsByYear[year]![monthName] = (earningsByYear[year]![monthName] ?? 0) + price;
+          earningsByYear[year]![monthName] = (earningsByYear[year]![monthName] ?? 0) + price;
         }
       }
     }
 
     List<int> availableYears = earningsByYear.keys.toList()..sort((a, b) => b.compareTo(a));
-    If (availableYears.isEmpty) availableYears.add(DateTime.now().year);
+    if (availableYears.isEmpty) availableYears.add(DateTime.now().year);
 
-    Int activeYear = availableYears.contains(_selectedRevenueYear) ? _selectedRevenueYear! : availableYears.first;
+    int activeYear = availableYears.contains(_selectedRevenueYear) ? _selectedRevenueYear! : availableYears.first;
     Map<String, int> selectedYearEarnings = earningsByYear[activeYear] ?? {};
 
-    Var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
+    var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
       Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
       Timestamp tB = (b.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
-      Return tB.compareTo(tA);
+      return tB.compareTo(tA);
     };
-    CompletedList.sort(historySort);
-    CancelledList.sort(historySort);
+    completedList.sort(historySort);
+    cancelledList.sort(historySort);
 
-    If (completedList.isEmpty && cancelledList.isEmpty) {
-      Return Center(
-        Child: Text('No history matches found.', style: TextStyle(color: Colors.pink.shade900, fontSize: 16)),
+    if (completedList.isEmpty && cancelledList.isEmpty) {
+      return Center(
+        child: Text('No history matches found.', style: TextStyle(color: Colors.pink.shade900, fontSize: 16)),
       );
     }
 
-    Return ListView(
-      Padding: const EdgeInsets.symmetric(vertical: 12),
-      Children: [
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      children: [
         // ------------------------- COMBINED REVENUE BREAKDOWN -------------------------
         Card(
-          Margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          Color: Colors.green.shade50,
-          Shape: RoundedRectangleBorder(
-            Radius: BorderRadius.circular(15), 
-            Side: BorderSide(color: Colors.green.shade200)
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          color: Colors.green.shade50,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), 
+            side: BorderSide(color: Colors.green.shade200)
           ),
-          Child: Padding(
-            Padding: const EdgeInsets.all(16.0),
-            Child: Column(
-              CrossAxisAlignment: CrossAxisAlignment.start,
-              Children: [
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
-                  MainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  Children: [
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Row(
-                      Children: [
+                      children: [
                         CircleAvatar(
-                          Radius: 16,
-                          BackgroundColor: Colors.green.shade100,
-                          Child: const Icon(Icons.analytics, color: Colors.green, size: 20),
+                          radius: 16,
+                          backgroundColor: Colors.green.shade100,
+                          child: const Icon(Icons.analytics, color: Colors.green, size: 20),
                         ),
                         const SizedBox(width: 8),
                         Text(
                           "Monthly Revenue",
-                          Style: TextStyle(fontSize: 15, color: Colors.green.shade900, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 15, color: Colors.green.shade900, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                     
                     // Year Selector Dropdown
                     Container(
-                      Padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      Decoration: BoxDecoration(
-                        Color: Colors.white,
-                        Radius: BorderRadius.circular(10),
-                        Border: Border.all(color: Colors.green.shade300),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.green.shade300),
                       ),
-                      Child: DropdownButton<int>(
-                        Value: activeYear,
-                        Underline: const SizedBox(),
-                        IsDense: true,
-                        Icon: Icon(Icons.arrow_drop_down, color: Colors.green.shade800),
-                        Style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green.shade900, fontSize: 13),
-                        OnChanged: (int? newYear) {
-                          If (newYear != null) {
-                            SetState(() {
+                      child: DropdownButton<int>(
+                        value: activeYear,
+                        underline: const SizedBox(),
+                        isDense: true,
+                        icon: Icon(Icons.arrow_drop_down, color: Colors.green.shade800),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green.shade900, fontSize: 13),
+                        onChanged: (int? newYear) {
+                          if (newYear != null) {
+                            setState(() {
                               _selectedRevenueYear = newYear;
                             });
                           }
                         },
-                        Items: availableYears.map((int year) {
-                          Return DropdownMenuItem<int>(
-                            Value: year,
-                            Child: Text("$year"),
+                        items: availableYears.map((int year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text("$year"),
                           );
                         }).toList(),
                       ),
@@ -1527,39 +1527,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 // Horizontal Carousel Cards
                 selectedYearEarnings.isEmpty
                     ? Padding(
-                        Padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        Child: Text("No revenue recorded for $activeYear.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text("No revenue recorded for $activeYear.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
                       )
                     : SizedBox(
-                        Height: 75,
-                        Child: ListView.builder(
-                          ScrollDirection: Axis.horizontal,
-                          ItemCount: selectedYearEarnings.entries.length,
-                          ItemBuilder: (context, idx) {
-                            Final entry = selectedYearEarnings.entries.elementAt(idx);
-                            Return Container(
-                              Width: 110,
-                              Margin: const EdgeInsets.only(right: 10),
-                              Padding: const EdgeInsets.all(10),
-                              Decoration: BoxDecoration(
-                                Color: Colors.white,
-                                Radius: BorderRadius.circular(12),
-                                Border: Border.all(color: Colors.green.shade200),
-                                BoxShadow: [
+                        height: 75,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: selectedYearEarnings.entries.length,
+                          itemBuilder: (context, idx) {
+                            final entry = selectedYearEarnings.entries.elementAt(idx);
+                            return Container(
+                              width: 110,
+                              margin: const EdgeInsets.only(right: 10),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.green.shade200),
+                                boxShadow: [
                                   BoxShadow(color: Colors.green.shade100.withOpacity(0.5), blurRadius: 4, offset: const Offset(0, 2))
                                 ],
                               ),
-                              Child: Column(
-                                MainAxisAlignment: MainAxisAlignment.center,
-                                Children: [
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
                                   Text(
-                                    Entry.key, 
-                                    Style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade700)
+                                    entry.key, 
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade700)
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     "R${entry.value}", 
-                                    Style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade800)
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade800)
                                   ),
                                 ],
                               ),
@@ -1575,42 +1575,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
         const SizedBox(height: 8),
 
         Padding(
-          Padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          Child: Row(
-            Children: [
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
               const Icon(Icons.check_circle_outline, color: Colors.green),
               const SizedBox(width: 8),
               Text("Completed Appointments (${completedList.length})", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green)),
             ],
           ),
         ),
-        If (completedList.isEmpty)
+        if (completedList.isEmpty)
           Padding(
-            Padding: const EdgeInsets.all(16.0),
-            Child: Text("No completed appointments yet.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+            padding: const EdgeInsets.all(16.0),
+            child: Text("No completed appointments yet.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
           )
         else
           ...completedList.map((doc) => _buildBookingCard(doc, true)),
 
         const Padding(
-          Padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          Child: Divider(thickness: 1.5),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Divider(thickness: 1.5),
         ),
 
         Padding(
-          Padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          Child: Row(
-            Children: [
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
               const Icon(Icons.cancel_outlined, color: Colors.orange),
               const SizedBox(width: 8),
               Text("Cancelled Appointments (${cancelledList.length})", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange)),
             ],
           ),
         ),
-        If (cancelledList.isEmpty)
+        if (cancelledList.isEmpty)
           Padding(
-            Padding: const EdgeInsets.all(16.0),
-            Child: Text("No cancelled appointments yet.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
+            padding: const EdgeInsets.all(16.0),
+            child: Text("No cancelled appointments yet.", style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)),
           )
         else
           ...cancelledList.map((doc) => _buildBookingCard(doc, true)),
@@ -1623,51 +1623,51 @@ class _AdminDashboardState extends State<AdminDashboard> {
     String status = data['status'] ?? 'Pending';
     String dateStr = data['date'] ?? '';
 
-    Bool isOverdue = !isHistory && status == 'Approved' && _isDateInPast(dateStr);
+    bool isOverdue = !isHistory && status == 'Approved' && _isDateInPast(dateStr);
 
     Color badgeColor;
     Color textColor;
-    If (status == 'Pending') {
-      BadgeColor = Colors.orange.shade100;
-      TextColor = Colors.orange.shade800;
+    if (status == 'Pending') {
+      badgeColor = Colors.orange.shade100;
+      textColor = Colors.orange.shade800;
     } else if (status == 'Approved') {
-      BadgeColor = isOverdue ? Colors.amber.shade100 : Colors.blue.shade100;
-      TextColor = isOverdue ? Colors.amber.shade900 : Colors.blue.shade800;
+      badgeColor = isOverdue ? Colors.amber.shade100 : Colors.blue.shade100;
+      textColor = isOverdue ? Colors.amber.shade900 : Colors.blue.shade800;
     } else if (status == 'Completed') {
-      BadgeColor = Colors.green.shade100;
-      TextColor = Colors.green.shade800;
+      badgeColor = Colors.green.shade100;
+      textColor = Colors.green.shade800;
     } else {
-      BadgeColor = Colors.red.shade100;
-      TextColor = Colors.red.shade800;
+      badgeColor = Colors.red.shade100;
+      textColor = Colors.red.shade800;
     }
 
-    Return Card(
-      Margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      Elevation: isOverdue ? 4 : 2,
-      Shape: RoundedRectangleBorder(
-        Radius: BorderRadius.circular(15),
-        Side: isOverdue
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      elevation: isOverdue ? 4 : 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+        side: isOverdue
             ? BorderSide(color: Colors.amber.shade700, width: 2)
             : BorderSide.none,
       ),
-      Child: Padding(
-        Padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        Child: Column(
-          CrossAxisAlignment: CrossAxisAlignment.start,
-          Children: [
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
-              Children: [
+              children: [
                 Text(
-                  Data['clientName'] ?? 'No Name', 
-                  Style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  data['clientName'] ?? 'No Name', 
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  Padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  Decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
-                  Child: Text(
-                    IsOverdue ? "Needs Completion Check ⚠️" : status, 
-                    Style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    isOverdue ? "Needs Completion Check ⚠️" : status, 
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
                   ),
                 ),
               ],
@@ -1675,61 +1675,61 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 8),
             
             Row(
-              CrossAxisAlignment: CrossAxisAlignment.start,
-              MainAxisAlignment: MainAxisAlignment.spaceBetween,
-              Children: [
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Expanded(
-                  Child: Text(
+                  child: Text(
                     "${data['service'] ?? 'No Service'}\n"
                     "📍 ${data['location'] ?? 'No Location'}\n"
                     "📅 ${data['date'] ?? ''} at ${data['time'] ?? ''}\n"
                     "💰 Price: R${data['price'] ?? 0}",
-                    Style: TextStyle(height: 1.4, color: Colors.grey.shade800, fontSize: 14),
+                    style: TextStyle(height: 1.4, color: Colors.grey.shade800, fontSize: 14),
                   ),
                 ),
                 
-                If (!isHistory)
+                if (!isHistory)
                   Row(
-                    MainAxisSize: MainAxisSize.min,
-                    Children: [
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       IconButton(
-                        Icon: const Icon(Icons.edit, color: Colors.blue),
-                        Padding: const EdgeInsets.symmetric(horizontal: 4),
-                        Constraints: const BoxConstraints(),
-                        OnPressed: () => _showEditDialog(doc),
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => _showEditDialog(doc),
                       ),
                       
-                      If (status == 'Pending')
+                      if (status == 'Pending')
                         IconButton(
-                          Icon: const Icon(Icons.check_circle, color: Colors.green),
-                          Padding: const EdgeInsets.symmetric(horizontal: 4),
-                          Constraints: const BoxConstraints(),
-                          OnPressed: () => _showEditDialog(doc),
+                          icon: const Icon(Icons.check_circle, color: Colors.green),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          constraints: const BoxConstraints(),
+                          onPressed: () => _showEditDialog(doc),
                         )
                       else if (status == 'Approved')
                         IconButton(
-                          Icon: Icon(
+                          icon: Icon(
                             Icons.done_all, 
-                            Color: isOverdue ? Colors.amber.shade800 : Colors.purple,
-                            Size: isOverdue ? 28 : 24,
+                            color: isOverdue ? Colors.amber.shade800 : Colors.purple,
+                            size: isOverdue ? 28 : 24,
                           ),
-                          Padding: const EdgeInsets.symmetric(horizontal: 4),
-                          Constraints: const BoxConstraints(),
-                          OnPressed: () => doc.reference.update({'status': 'Completed'}),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          constraints: const BoxConstraints(),
+                          onPressed: () => doc.reference.update({'status': 'Completed'}),
                         ),
 
                       IconButton(
-                        Icon: const Icon(Icons.cancel, color: Colors.orange),
-                        Padding: const EdgeInsets.symmetric(horizontal: 4),
-                        Constraints: const BoxConstraints(),
-                        OnPressed: () => doc.reference.update({'status': 'Cancelled'}),
+                        icon: const Icon(Icons.cancel, color: Colors.orange),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => doc.reference.update({'status': 'Cancelled'}),
                       ),
                       
                       IconButton(
-                        Icon: const Icon(Icons.delete, color: Colors.red),
-                        Padding: const EdgeInsets.symmetric(horizontal: 4),
-                        Constraints: const BoxConstraints(),
-                        OnPressed: () => doc.reference.delete(),
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        constraints: const BoxConstraints(),
+                        onPressed: () => doc.reference.delete(),
                       ),
                     ],
                   ),
