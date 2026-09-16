@@ -91603,7 +91603,7 @@ break
 case 4:s=2
 break
 case 7:B.b.a5(n.a.c)
-a2=A.fK("https://web.whatsapp.com/send?phone=27743893645&text="+A.Ip(B.KU,"Hi! I'm "+A.k(n.r)+" and I just booked a "+A.k(k)+" for "+A.k(m)+" at "+A.k(l)+".",B.a7,!1),0,null)
+a2=A.fK("https://wa.me/27743893645?text="+A.Ip(B.KU,"Hi! I'm "+A.k(n.r)+" and I just booked a "+A.k(k)+" for "+A.k(m)+" at "+A.k(l)+".",B.a7,!1),0,null)
 h=n.c
 if(h!=null)A.tg(null,null,!1,null,new A.anb(a2),h,null,!0,t.z)
 case 1:return A.L(q,r)
