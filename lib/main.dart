@@ -757,13 +757,10 @@ class _BasketScreenState extends State<BasketScreen> {
 
     widget.basketItems.clear();
 
-    // 🚀 Smart link handover: Forces native app on mobile and WhatsApp Web on browser
+    // 🚀 Universal wa.me link: Triggers native app on mobile and correctly redirects on web
     final businessWhatsApp = "27743893645"; // Nombu Beauty business line
     final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
-    
-    final Uri whatsappUri = kIsWeb
-        ? Uri.parse("https://web.whatsapp.com/send?phone=$businessWhatsApp&text=$textMessage")
-        : Uri.parse("whatsapp://send?phone=$businessWhatsApp&text=$textMessage");
+    final Uri whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
 
     if (mounted) {
       showDialog(
