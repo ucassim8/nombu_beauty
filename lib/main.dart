@@ -1,17 +1,17 @@
-Import 'dart:async';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math' as math;
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:js' as js;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:math' as math; 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js' as js;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -512,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ------------------------- SERVICE SCREEN (LIVE FIRESTORE STREAM WITH FALLBACKS) -------------------------
+// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   final List<Map<String, dynamic>> basketItems;
@@ -644,7 +644,7 @@ class _BasketScreenState extends State<BasketScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   bool isAfterHours = false;
-  bool _isSubmitting = false; // 🛡️ Added to track processing state and block multi-clicks
+  bool _isSubmitting = false;
 
   int get baseTotalPrice => widget.basketItems.fold(0, (sum, item) => sum + (item['price'] as int));
   int get finalPrice => baseTotalPrice + (isAfterHours ? 100 : 0);
@@ -666,7 +666,6 @@ class _BasketScreenState extends State<BasketScreen> {
     }
   }
 
-  // Check if slot is already approved in Firestore
   Future<bool> _isSlotAlreadyBooked(String date, String time) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('bookings')
@@ -679,7 +678,7 @@ class _BasketScreenState extends State<BasketScreen> {
   }
 
   void triggerWhatsApp() async {
-    if (_isSubmitting) return; // Prevent multiple execution if already running
+    if (_isSubmitting) return;
 
     if (widget.basketItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your basket is empty!')));
@@ -692,7 +691,7 @@ class _BasketScreenState extends State<BasketScreen> {
     }
 
     setState(() {
-      _isSubmitting = true; // Lock button / inputs immediately
+      _isSubmitting = true;
     });
 
     String formattedDate = "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
@@ -701,7 +700,7 @@ class _BasketScreenState extends State<BasketScreen> {
     bool isBooked = await _isSlotAlreadyBooked(formattedDate, formattedTime);
     if (isBooked) {
       setState(() {
-        _isSubmitting = false; // Unlock if slot unavailable
+        _isSubmitting = false;
       });
       if (mounted) {
         showDialog(
@@ -725,7 +724,6 @@ class _BasketScreenState extends State<BasketScreen> {
 
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
 
-    // 2. Ping your Render Cloud Backend to trigger WhatsApp alert & duplicate check guard
     try {
       print("-> Attempting to ping Render backend...");
       final response = await http.post(
@@ -741,11 +739,8 @@ class _BasketScreenState extends State<BasketScreen> {
           'price': finalPrice,
         }),
       );
-      print("-> Render backend response status: ${response.statusCode}");
-      print("-> Render backend response body: ${response.body}");
 
       if (response.statusCode == 429) {
-        // Handle backend duplicate spam warning
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Please wait a moment, your booking is already being processed!')),
@@ -774,7 +769,7 @@ class _BasketScreenState extends State<BasketScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.pop(context); // Return to home
+                Navigator.pop(context);
               },
               child: const Text("Okay", style: TextStyle(color: Colors.white)),
             ),
@@ -1101,7 +1096,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 cleanPhone = '27' + cleanPhone;
               }
 
-              // Ping Render Backend with updated parameters including location and price
               try {
                 await http.post(
                   Uri.parse('https://nombu-backend.onrender.com/approve-booking'),
@@ -1428,7 +1422,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     List<DocumentSnapshot> completedList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Completed')).toList();
     List<DocumentSnapshot> cancelledList = docs.where((doc) => ((doc.data() as Map<String, dynamic>)['status'] == 'Cancelled')).toList();
 
-    // Group earnings by year and month
     Map<int, Map<String, int>> earningsByYear = {};
     List<String> monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -1478,7 +1471,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
-        // ------------------------- COMBINED REVENUE BREAKDOWN -------------------------
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           color: Colors.green.shade50,
@@ -1508,8 +1500,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       ],
                     ),
-                    
-                    // Year Selector Dropdown
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
@@ -1543,7 +1533,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                 const SizedBox(height: 12),
 
-                // Horizontal Carousel Cards
                 selectedYearEarnings.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -1760,5 +1749,3 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
-
-
