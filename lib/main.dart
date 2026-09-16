@@ -757,36 +757,32 @@ class _BasketScreenState extends State<BasketScreen> {
 
     widget.basketItems.clear();
 
-    // 🚀 Automatically launch WhatsApp with pre-filled message to open the 24-hr window
-    try {
-      final businessWhatsApp = "27743893645"; // Nombu Beauty business line
-      final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
-      final whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
-
-      if (kIsWeb) {
-        js.context.callMethod('open', [whatsappUri.toString(), '_blank']);
-      } else {
-        if (await canLaunchUrl(whatsappUri)) {
-          await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-        }
-      }
-    } catch (e) {
-      print("-> Error launching WhatsApp: $e");
-    }
+    // 🚀 Prepare the WhatsApp Uri link to jump straight into the AI chat with pre-filled message
+    final businessWhatsApp = "27743893645"; // Nombu Beauty business line
+    final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
+    final whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
 
     if (mounted) {
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (context) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text("Booking Requested! 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const Text("Redirecting you to WhatsApp to connect with our AI receptionist!"),
+          content: const Text("Your booking has been successfully submitted! Tap Okay to open WhatsApp and chat with our AI receptionist."),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+              onPressed: () async {
+                // Launch WhatsApp directly on button click to prevent web popup block
+                if (kIsWeb) {
+                  js.context.callMethod('open', [whatsappUri.toString(), '_blank']);
+                } else {
+                  if (await canLaunchUrl(whatsappUri)) {
+                    await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+                  }
+                }
+                Navigator.pop(context); // Close the dialog
               },
               child: const Text("Okay", style: TextStyle(color: Colors.white)),
             ),
