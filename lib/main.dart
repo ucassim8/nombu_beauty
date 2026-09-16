@@ -757,10 +757,13 @@ class _BasketScreenState extends State<BasketScreen> {
 
     widget.basketItems.clear();
 
-    // 🚀 Prepare the WhatsApp Uri link to jump straight into the AI chat with pre-filled message
+    // 🚀 Smart link handover: Forces native app on mobile and WhatsApp Web on browser
     final businessWhatsApp = "27743893645"; // Nombu Beauty business line
     final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
-    final whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
+    
+    final Uri whatsappUri = kIsWeb
+        ? Uri.parse("https://web.whatsapp.com/send?phone=$businessWhatsApp&text=$textMessage")
+        : Uri.parse("whatsapp://send?phone=$businessWhatsApp&text=$textMessage");
 
     if (mounted) {
       showDialog(
@@ -774,7 +777,7 @@ class _BasketScreenState extends State<BasketScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
               onPressed: () async {
-                // Launch WhatsApp directly on button click to prevent web popup block
+                // Launch WhatsApp directly on click to prevent browser blocking
                 if (kIsWeb) {
                   js.context.callMethod('open', [whatsappUri.toString(), '_blank']);
                 } else {
