@@ -1709,17 +1709,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ),
                 
-                if (!isHistory)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isHistory) ...[
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         constraints: const BoxConstraints(),
                         onPressed: () => _showEditDialog(doc),
                       ),
-                      
                       if (status == 'Pending')
                         IconButton(
                           icon: const Icon(Icons.check_circle, color: Colors.green),
@@ -1738,22 +1737,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           constraints: const BoxConstraints(),
                           onPressed: () => doc.reference.update({'status': 'Completed'}),
                         ),
-
                       IconButton(
                         icon: const Icon(Icons.cancel, color: Colors.orange),
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         constraints: const BoxConstraints(),
                         onPressed: () => doc.reference.update({'status': 'Cancelled'}),
                       ),
-                      
+                    ] else ...[
+                      // 🔄 RESTORE BUTTON FOR HISTORY ITEMS
                       IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.restore, color: Colors.blue),
+                        tooltip: "Restore to Approved",
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         constraints: const BoxConstraints(),
-                        onPressed: () => doc.reference.delete(),
+                        onPressed: () => doc.reference.update({'status': 'Approved'}),
                       ),
                     ],
-                  ),
+                    
+                    // Permanent Delete Button
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      tooltip: "Delete Permanently",
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      constraints: const BoxConstraints(),
+                      onPressed: () => doc.reference.delete(),
+                    ),
+                  ],
+                ),
               ],
             ),
           ],
