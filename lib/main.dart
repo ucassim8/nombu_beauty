@@ -757,13 +757,30 @@ class _BasketScreenState extends State<BasketScreen> {
 
     widget.basketItems.clear();
 
+    // 🚀 Automatically launch WhatsApp with pre-filled message to open the 24-hr window
+    try {
+      final businessWhatsApp = "27743893645"; // Nombu Beauty business line
+      final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
+      final whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
+
+      if (kIsWeb) {
+        js.context.callMethod('open', [whatsappUri.toString(), '_blank']);
+      } else {
+        if (await canLaunchUrl(whatsappUri)) {
+          await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+        }
+      }
+    } catch (e) {
+      print("-> Error launching WhatsApp: $e");
+    }
+
     if (mounted) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text("Booking Requested! 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const Text("Your booking has been successfully submitted to management. A stylist will review and message you shortly!"),
+          content: const Text("Redirecting you to WhatsApp to connect with our AI receptionist!"),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
