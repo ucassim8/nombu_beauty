@@ -91574,7 +91574,7 @@ s=1
 break}h=n.a.c
 k=new A.a3(h,new A.ana(),A.Z(h).i("a3<1,@>")).aS(0,", ")
 p=5
-A.jZ("-> Attempting to ping Render backend...")
+A.jZ("-> Attempting to ping Render backend for instant templates...")
 h=A.fK("https://nombu-backend.onrender.com/new-booking",0,null)
 g=t.N
 f=A.ac(["Content-Type","application/json"],g,g)
