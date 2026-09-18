@@ -677,7 +677,7 @@ class _BasketScreenState extends State<BasketScreen> {
     return snapshot.docs.isNotEmpty;
   }
 
-  void triggerWhatsApp() async {
+  void submitBooking() async {
     if (_isSubmitting) return;
 
     if (widget.basketItems.isEmpty) {
@@ -724,7 +724,6 @@ class _BasketScreenState extends State<BasketScreen> {
 
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
 
-    // 🚀 FIRE BACKEND TEMPLATES IMMEDIATELY ON CLICK
     try {
       print("-> Attempting to ping Render backend for instant templates...");
       final response = await http.post(
@@ -758,32 +757,22 @@ class _BasketScreenState extends State<BasketScreen> {
 
     widget.basketItems.clear();
 
-    final businessWhatsApp = "27743893645"; // Nombu Beauty business line
-    final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
-    final Uri whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
-
     if (mounted) {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("Booking Requested! 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const Text("Your booking has been successfully submitted! Tap Okay to open WhatsApp and chat with our AI receptionist."),
+          title: const Text("Booking Confirmed! 🌸", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text("Your booking has been successfully submitted. You will receive a WhatsApp confirmation message shortly!"),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
-              onPressed: () async {
-                if (kIsWeb) {
-                  js.context.callMethod('open', [whatsappUri.toString(), '_blank']);
-                } else {
-                  if (await canLaunchUrl(whatsappUri)) {
-                    await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-                  }
-                }
-                Navigator.pop(context);
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Return to previous screen
               },
-              child: const Text("Okay", style: TextStyle(color: Colors.white)),
+              child: const Text("Awesome", style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -859,7 +848,7 @@ class _BasketScreenState extends State<BasketScreen> {
           const SizedBox(height: 35),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-            onPressed: _isSubmitting ? null : triggerWhatsApp,
+            onPressed: _isSubmitting ? null : submitBooking,
             child: Text(
               _isSubmitting ? 'Processing Booking... Please wait ⏳' : 'Book Basket (R$finalPrice)', 
               style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
