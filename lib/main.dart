@@ -724,8 +724,9 @@ class _BasketScreenState extends State<BasketScreen> {
 
     String servicesSummary = widget.basketItems.map((item) => item['name']).join(", ");
 
+    // 🚀 FIRE BACKEND TEMPLATES IMMEDIATELY ON CLICK
     try {
-      print("-> Attempting to ping Render backend...");
+      print("-> Attempting to ping Render backend for instant templates...");
       final response = await http.post(
         Uri.parse('https://nombu-backend.onrender.com/new-booking'),
         headers: {"Content-Type": "application/json"},
@@ -757,7 +758,6 @@ class _BasketScreenState extends State<BasketScreen> {
 
     widget.basketItems.clear();
 
-    // 🚀 Universal wa.me link: Triggers native app on mobile and correctly redirects on web
     final businessWhatsApp = "27743893645"; // Nombu Beauty business line
     final textMessage = Uri.encodeComponent("Hi! I'm $clientName and I just booked a $servicesSummary for $formattedDate at $formattedTime.");
     final Uri whatsappUri = Uri.parse("https://wa.me/$businessWhatsApp?text=$textMessage");
@@ -774,7 +774,6 @@ class _BasketScreenState extends State<BasketScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
               onPressed: () async {
-                // Launch WhatsApp directly on click to prevent browser blocking
                 if (kIsWeb) {
                   js.context.callMethod('open', [whatsappUri.toString(), '_blank']);
                 } else {
@@ -782,7 +781,7 @@ class _BasketScreenState extends State<BasketScreen> {
                     await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
                   }
                 }
-                Navigator.pop(context); // Close the dialog
+                Navigator.pop(context);
               },
               child: const Text("Okay", style: TextStyle(color: Colors.white)),
             ),
@@ -1744,7 +1743,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () => doc.reference.update({'status': 'Cancelled'}),
                       ),
                     ] else ...[
-                      // 🔄 RESTORE BUTTON FOR HISTORY ITEMS
                       IconButton(
                         icon: const Icon(Icons.restore, color: Colors.blue),
                         tooltip: "Restore to Approved",
@@ -1754,7 +1752,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ),
                     ],
                     
-                    // Permanent Delete Button
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       tooltip: "Delete Permanently",
