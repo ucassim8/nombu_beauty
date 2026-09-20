@@ -1077,7 +1077,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: () async {
               int parsedPrice = int.tryParse(priceCtrl.text) ?? (data['price'] as num?)?.toInt() ?? 0;
 
-              doc.reference.update({
+              // 1. Update Firestore locally
+              await doc.reference.update({
                 'service': serviceCtrl.text, 
                 'price': parsedPrice, 
                 'location': locCtrl.text,
@@ -1086,6 +1087,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'status': 'Approved'
               });
 
+              // 2. Clean and format client phone number
               String rawPhone = data['phoneNumber'] ?? "";
               String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
 
@@ -1097,22 +1099,26 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 cleanPhone = '27' + cleanPhone;
               }
 
+              // 🚀 3. Ping Render backend to trigger approval templates
               try {
+                print("-> Pinging Render backend for approval templates...");
                 await http.post(
                   Uri.parse('https://nombu-backend.onrender.com/approve-booking'),
                   headers: {"Content-Type": "application/json"},
                   body: jsonEncode({
-                    'clientPhone': cleanPhone,
+                    'bookingId': doc.id,
+                    'phoneNumber': cleanPhone,
                     'clientName': data['clientName'],
-                    'serviceName': serviceCtrl.text,
-                    'appointmentDate': dateCtrl.text,
-                    'appointmentTime': timeCtrl.text,
+                    'service': serviceCtrl.text,
                     'location': locCtrl.text,
+                    'date': dateCtrl.text,
+                    'time': timeCtrl.text,
                     'price': parsedPrice,
                   }),
                 );
+                print("-> Approval templates triggered successfully via backend!");
               } catch (e) {
-                print("Approval request error: $e");
+                print("❌ Approval request network error: $e");
               }
               
               if (context.mounted) Navigator.pop(context);
@@ -1712,7 +1718,33 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           icon: const Icon(Icons.check_circle, color: Colors.green),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
-                          onPressed: () => _showEditDialog(doc),
+                          onPressed: () async {
+                            // Quick Approve via Checkmark Button
+                            await doc.reference.update({'status': 'Approved'});
+
+                            String rawPhone = data['phoneNumber'] ?? "";
+                            String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
+                            if (cleanPhone.startsWith('0')) cleanPhone = '27' + cleanPhone.substring(1);
+
+                            try {
+                              await http.post(
+                                Uri.parse('https://nombu-backend.onrender.com/approve-booking'),
+                                headers: {"Content-Type": "application/json"},
+                                body: jsonEncode({
+                                  'bookingId': doc.id,
+                                  'phoneNumber': cleanPhone,
+                                  'clientName': data['clientName'],
+                                  'service': data['service'],
+                                  'location': data['location'],
+                                  'date': data['date'],
+                                  'time': data['time'],
+                                  'price': data['price'],
+                                }),
+                              );
+                            } catch (e) {
+                              print("Quick approval backend error: $e");
+                            }
+                          },
                         )
                       else if (status == 'Approved')
                         IconButton(
