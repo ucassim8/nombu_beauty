@@ -669,25 +669,38 @@ class _ServiceScreenState extends State<ServiceScreen> {
       body: Column(
         children: [
           if (isSpecialsCategory)
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.asset(
-                  'assets/IMG-20260915-WA0037.jpg',
-                  height: 220,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 100,
-                      color: Colors.pink.shade100,
-                      alignment: Alignment.center,
-                      child: Text("Matric Dance Special Flyer", style: TextStyle(color: Colors.pink.shade900, fontWeight: FontWeight.bold)),
-                    );
-                  },
-                ),
-              ),
+            StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance.collection('settings').doc('promo').snapshots(),
+              builder: (context, settingSnapshot) {
+                String flyerAsset = 'assets/IMG-20260915-WA0037.jpg'; // default fallback
+                if (settingSnapshot.hasData && settingSnapshot.data!.exists) {
+                  final data = settingSnapshot.data!.data() as Map<String, dynamic>?;
+                  if (data != null && data['flyerImage'] != null) {
+                    flyerAsset = data['flyerImage'];
+                  }
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.asset(
+                      flyerAsset,
+                      height: 220,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 100,
+                          color: Colors.pink.shade100,
+                          alignment: Alignment.center,
+                          child: Text("Current Promo Flyer", style: TextStyle(color: Colors.pink.shade900, fontWeight: FontWeight.bold)),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -1364,41 +1377,104 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  void _showPromoBannerDialog(BuildContext context) async {
+    final docRef = FirebaseFirestore.instance.collection('settings').doc('promo');
+    final docSnap = await docRef.get();
+    String currentFlyer = 'assets/IMG-20260915-WA0037.jpg';
+    if (docSnap.exists && docSnap.data()?['flyerImage'] != null) {
+      currentFlyer = docSnap.data()?['flyerImage'];
+    }
+
+    TextEditingController flyerCtrl = TextEditingController(text: currentFlyer);
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Update Active Promo Flyer 🌸"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Enter the asset path of your new flyer (e.g., assets/my_new_flyer.jpg):",
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: flyerCtrl,
+                decoration: const InputDecoration(labelText: "Flyer Asset Path", border: OutlineInputBorder()),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+              onPressed: () async {
+                await docRef.set({'flyerImage': flyerCtrl.text.trim()}, SetOptions(merge: true));
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Promo flyer updated successfully! ✨')),
+                  );
+                }
+              },
+              child: const Text("Save Flyer", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   // ------------------------- CATEGORIZED SERVICES MANAGER -------------------------
   Widget _buildServicesManager() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('services').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-
-        final docs = snapshot.data!.docs;
-
-        final categoriesList = ['Specials & Promos', 'Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
-
-        Map<String, List<DocumentSnapshot>> groupedServices = {
-          for (var cat in categoriesList) cat: []
-        };
-
-        for (var doc in docs) {
-          final data = doc.data() as Map<String, dynamic>;
-          final rawCat = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
-
-          String matchedCategory = categoriesList.firstWhere(
-            (c) => c.toLowerCase() == rawCat.trim().toLowerCase(),
-            orElse: () => 'Hair Services',
-          );
-
-          groupedServices[matchedCategory]!.add(doc);
-        }
-
-        return Scaffold(
-          floatingActionButton: FloatingActionButton.extended(
+    return Scaffold(
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroButtonTag: 'promo_banner_btn',
+            backgroundColor: Colors.purple.shade400,
+            icon: const Icon(Icons.image, color: Colors.white),
+            label: const Text("Change Promo Flyer", style: TextStyle(color: Colors.white)),
+            onPressed: () => _showPromoBannerDialog(context),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton.extended(
+            heroButtonTag: 'add_service_btn',
             backgroundColor: Colors.pink.shade400,
             icon: const Icon(Icons.add, color: Colors.white),
             label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
             onPressed: () => _showAddOrEditServiceDialog(null),
           ),
-          body: ListView(
+        ],
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('services').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+
+          final docs = snapshot.data!.docs;
+          final categoriesList = ['Specials & Promos', 'Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
+
+          Map<String, List<DocumentSnapshot>> groupedServices = {
+            for (var cat in categoriesList) cat: []
+          };
+
+          for (var doc in docs) {
+            final data = doc.data() as Map<String, dynamic>;
+            final rawCat = (data['category'] ?? data['Category'] ?? 'Hair Services').toString();
+
+            String matchedCategory = categoriesList.firstWhere(
+              (c) => c.toLowerCase() == rawCat.trim().toLowerCase(),
+              orElse: () => 'Hair Services',
+            );
+
+            groupedServices[matchedCategory]!.add(doc);
+          }
+
+          return ListView(
             padding: const EdgeInsets.all(12),
             children: categoriesList.map((categoryName) {
               final categoryDocs = groupedServices[categoryName] ?? [];
@@ -1456,9 +1532,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
               );
             }).toList(),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
