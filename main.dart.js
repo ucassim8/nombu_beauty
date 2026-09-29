@@ -91519,7 +91519,7 @@ o=A.aO(o,p,p,p,p,p,p,p,p)
 s=t.p
 o=A.ys(A.b([A.e3(p,p,B.IB,p,new A.auM(this,a),p,p,p)],s),B.ay,p,p,p,o)
 s=A.b([],s)
-if(n)s.push(new A.aS(B.ob,A.aEn(A.de(15),A.a9A("assets/241335.jpg",new A.auN(),B.j6,220,1/0),B.aS),p))
+if(n)s.push(new A.aS(B.ob,A.aEn(A.de(15),A.a9A("assets/IMG-20260915-WA0037.jpg",new A.auN(),B.j6,220,1/0),B.aS),p))
 r=$.cD
 q=(r==null?$.cD=$.fr():r).fM("[DEFAULT]")
 A.dr(q,$.eZ(),!0)
