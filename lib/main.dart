@@ -1430,25 +1430,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
   // ------------------------- CATEGORIZED SERVICES MANAGER -------------------------
   Widget _buildServicesManager() {
     return Scaffold(
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            heroButtonTag: 'promo_banner_btn',
-            backgroundColor: Colors.purple.shade400,
-            icon: const Icon(Icons.image, color: Colors.white),
-            label: const Text("Change Promo Flyer", style: TextStyle(color: Colors.white)),
-            onPressed: () => _showPromoBannerDialog(context),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton.extended(
-            heroButtonTag: 'add_service_btn',
-            backgroundColor: Colors.pink.shade400,
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
-            onPressed: () => _showAddOrEditServiceDialog(null),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.pink.shade400,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text("Add New Service", style: TextStyle(color: Colors.white)),
+        onPressed: () => _showAddOrEditServiceDialog(null),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('services').snapshots(),
@@ -1476,62 +1462,101 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
           return ListView(
             padding: const EdgeInsets.all(12),
-            children: categoriesList.map((categoryName) {
-              final categoryDocs = groupedServices[categoryName] ?? [];
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                elevation: 2,
-                child: ExpansionTile(
-                  initiallyExpanded: categoryName == 'Specials & Promos', 
-                  title: Text(
-                    "$categoryName (${categoryDocs.length})",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: categoryName == 'Specials & Promos' ? Colors.pink.shade600 : Colors.pink.shade800,
-                    ),
-                  ),
-                  children: categoryDocs.isEmpty
-                      ? [
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              "No services under $categoryName yet.",
-                              style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
-                            ),
-                          )
-                        ]
-                      : categoryDocs.map((doc) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed').toString();
-                          final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
-
-                          return ListTile(
-                            title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                            subtitle: Text(
-                              "R$priceVal",
-                              style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.blue),
-                                  onPressed: () => _showAddOrEditServiceDialog(doc),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => doc.reference.delete(),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+            children: [
+              // 🌸 PROMO FLYER MANAGEMENT BANNER CARD
+              Card(
+                color: Colors.pink.shade50,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  side: BorderSide(color: Colors.pink.shade200),
                 ),
-              );
-            }).toList(),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.image, color: Colors.pink.shade700, size: 28),
+                          const SizedBox(width: 10),
+                          const Text(
+                            "Active Promo Flyer",
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.pink.shade400,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.edit, color: Colors.white, size: 16),
+                        label: const Text("Change Flyer", style: TextStyle(color: Colors.white)),
+                        onPressed: () => _showPromoBannerDialog(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              ...categoriesList.map((categoryName) {
+                final categoryDocs = groupedServices[categoryName] ?? [];
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  elevation: 2,
+                  child: ExpansionTile(
+                    initiallyExpanded: categoryName == 'Specials & Promos', 
+                    title: Text(
+                      "$categoryName (${categoryDocs.length})",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: categoryName == 'Specials & Promos' ? Colors.pink.shade600 : Colors.pink.shade800,
+                      ),
+                    ),
+                    children: categoryDocs.isEmpty
+                        ? [
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                "No services under $categoryName yet.",
+                                style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                              ),
+                            )
+                          ]
+                        : categoryDocs.map((doc) {
+                            final data = doc.data() as Map<String, dynamic>;
+                            final serviceName = (data['name'] ?? data['Name'] ?? 'Unnamed').toString();
+                            final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+
+                            return ListTile(
+                              title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                              subtitle: Text(
+                                "R$priceVal",
+                                style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () => _showAddOrEditServiceDialog(doc),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => doc.reference.delete(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                  ),
+                );
+              }),
+            ],
           );
         },
       ),
