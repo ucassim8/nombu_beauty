@@ -315,6 +315,114 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
+// ------------------------- FLASHING SPECIAL CARD -------------------------
+class FlashingSpecialCard extends StatefulWidget {
+  final Map<String, dynamic> category;
+  final VoidCallback onTap;
+
+  const FlashingSpecialCard({required this.category, required this.onTap});
+
+  @override
+  State<FlashingSpecialCard> createState() => _FlashingSpecialCardState();
+}
+
+class _FlashingSpecialCardState extends State<FlashingSpecialCard> with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.04).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: Opacity(
+            opacity: _opacityAnimation.value,
+            child: GestureDetector(
+              onTap: widget.onTap,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.pink.shade500, Colors.pink.shade200],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.pink.shade400.withOpacity(0.6),
+                      blurRadius: 14,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.local_fire_department, size: 48, color: Colors.white),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.category['name'],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 15,
+                        shadows: [
+                          Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2)
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        "TAP TO VIEW 🔥",
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatefulWidget {
   final List<Map<String, dynamic>> basketItems;
@@ -326,6 +434,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> categories = [
+    {'name': 'Specials & Promos', 'icon': Icons.local_fire_department},
     {'name': 'Hair Services', 'icon': Icons.content_cut},
     {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
     {'name': 'Makeup', 'icon': Icons.brush},
@@ -432,6 +541,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 itemBuilder: (context, index) {
                   final category = categories[index];
+                  final isSpecial = category['name'] == 'Specials & Promos';
+
+                  if (isSpecial) {
+                    return FlashingSpecialCard(
+                      category: category,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => ServiceScreen(category: category['name'], basketItems: widget.basketItems)),
+                        ).then((_) => setState(() {}));
+                      },
+                    );
+                  }
+
                   return GestureDetector(
                     onTap: () {
                       if (category['name'] == 'Admin Dashboard') {
@@ -525,6 +648,8 @@ class ServiceScreen extends StatefulWidget {
 class _ServiceScreenState extends State<ServiceScreen> {
   @override
   Widget build(BuildContext context) {
+    final bool isSpecialsCategory = widget.category == 'Specials & Promos';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category), 
@@ -541,85 +666,118 @@ class _ServiceScreenState extends State<ServiceScreen> {
           )
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('services').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text('Error loading services.', style: TextStyle(color: Colors.pink.shade900)),
-            );
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.pink.shade400),
-            );
-          }
-
-          final allDocs = snapshot.data?.docs ?? [];
-
-          final docs = allDocs.where((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final rawCategory = data['category'] ?? data['Category'] ?? '';
-            final docCategory = rawCategory.toString().trim().toLowerCase();
-            final targetCategory = widget.category.trim().toLowerCase();
-            return docCategory == targetCategory;
-          }).toList();
-
-          if (docs.isEmpty) {
-            return Center(
-              child: Text(
-                'No services found in this category.',
-                style: TextStyle(color: Colors.pink.shade900, fontSize: 16),
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              
-              final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
-              final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
-              final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
-
-              final serviceMap = {
-                'name': serviceName,
-                'price': servicePrice,
-              };
-
-              final isInBasket = widget.basketItems.any((item) => item['name'] == serviceName);
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 3,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                child: ListTile(
-                  title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('R$servicePrice', style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold)),
-                  trailing: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isInBasket ? Colors.grey : Colors.pink.shade400,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        if (isInBasket) {
-                          widget.basketItems.removeWhere((item) => item['name'] == serviceName);
-                        } else {
-                          widget.basketItems.add(serviceMap);
-                        }
-                      });
-                    },
-                    child: Text(isInBasket ? 'Remove' : 'Add to Basket', style: const TextStyle(color: Colors.white)),
-                  ),
+      body: Column(
+        children: [
+          if (isSpecialsCategory)
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.asset(
+                  'assets/241335.jpg',
+                  height: 220,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 100,
+                      color: Colors.pink.shade100,
+                      alignment: Alignment.center,
+                      child: Text("Matric Dance Special Flyer", style: TextStyle(color: Colors.pink.shade900, fontWeight: FontWeight.bold)),
+                    );
+                  },
                 ),
-              );
-            },
-          );
-        },
+              ),
+            ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('services').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error loading services.', style: TextStyle(color: Colors.pink.shade900)),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(color: Colors.pink.shade400),
+                  );
+                }
+
+                final allDocs = snapshot.data?.docs ?? [];
+
+                final docs = allDocs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final rawCategory = data['category'] ?? data['Category'] ?? '';
+                  final docCategory = rawCategory.toString().trim().toLowerCase();
+                  final targetCategory = widget.category.trim().toLowerCase();
+                  return docCategory == targetCategory;
+                }).toList();
+
+                if (docs.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        isSpecialsCategory 
+                          ? 'No specials listed in Firestore yet. Add them in the Admin Dashboard under "Specials & Promos"!'
+                          : 'No services found in this category.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.pink.shade900, fontSize: 15),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    
+                    final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
+                    final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
+                    final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
+
+                    final serviceMap = {
+                      'name': serviceName,
+                      'price': servicePrice,
+                    };
+
+                    final isInBasket = widget.basketItems.any((item) => item['name'] == serviceName);
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      child: ListTile(
+                        title: Text(serviceName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text('R$servicePrice', style: TextStyle(color: Colors.pink.shade700, fontWeight: FontWeight.bold)),
+                        trailing: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isInBasket ? Colors.grey : Colors.pink.shade400,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              if (isInBasket) {
+                                widget.basketItems.removeWhere((item) => item['name'] == serviceName);
+                              } else {
+                                widget.basketItems.add(serviceMap);
+                              }
+                            });
+                          },
+                          child: Text(isInBasket ? 'Remove' : 'Add to Basket', style: const TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1141,7 +1299,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     TextEditingController nameCtrl = TextEditingController(text: initialName);
     TextEditingController priceCtrl = TextEditingController(text: initialPrice);
 
-    List<String> categories = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
+    List<String> categories = ['Specials & Promos', 'Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
     String selectedCategory = categories.contains(initialCategory) ? initialCategory : categories.first;
 
     showDialog(
@@ -1215,7 +1373,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         final docs = snapshot.data!.docs;
 
-        final categoriesList = ['Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
+        final categoriesList = ['Specials & Promos', 'Hair Services', 'Hair Laundry', 'Makeup', 'Lashes'];
 
         Map<String, List<DocumentSnapshot>> groupedServices = {
           for (var cat in categoriesList) cat: []
@@ -1250,13 +1408,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 elevation: 2,
                 child: ExpansionTile(
-                  initiallyExpanded: false, 
+                  initiallyExpanded: categoryName == 'Specials & Promos', 
                   title: Text(
                     "$categoryName (${categoryDocs.length})",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Colors.pink.shade800,
+                      color: categoryName == 'Specials & Promos' ? Colors.pink.shade600 : Colors.pink.shade800,
                     ),
                   ),
                   children: categoryDocs.isEmpty
