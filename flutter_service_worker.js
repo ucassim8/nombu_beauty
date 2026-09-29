@@ -4,7 +4,7 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {"manifest.json": "afe55245c3e03f71260255a9b7274507",
-"flutter_bootstrap.js": "935e4b1e731962c98ef507a43d0a04cf",
+"flutter_bootstrap.js": "2b2cd40a93d9f4bb21d8ad927ebf8f51",
 "assets/AssetManifest.bin.json": "6a09a8d7657843014dd34248e75d532e",
 "assets/AssetManifest.json": "caec7ce48a0705e2f43395acf64c3bd4",
 "assets/assets/Logonombu.jpg": "8b71729aabce4ef02db12bf128d8fc7f",
