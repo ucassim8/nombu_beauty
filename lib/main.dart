@@ -674,7 +674,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: Image.asset(
-                  'assets/241335.jpg',
+                  'assets/IMG-20260915-WA0037.jpg',
                   height: 220,
                   width: double.infinity,
                   fit: BoxFit.cover,
