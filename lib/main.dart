@@ -1396,13 +1396,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                "Enter the asset path of your new flyer (e.g., assets/my_new_flyer.jpg):",
+                "Enter the asset path or image name for your new flyer (e.g., assets/my_new_flyer.jpg):",
                 style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: flyerCtrl,
                 decoration: const InputDecoration(labelText: "Flyer Asset Path", border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade200),
+                icon: const Icon(Icons.upload_file, color: Colors.black87),
+                label: const Text("Pick Image File", style: TextStyle(color: Colors.black87)),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Type your asset file name above and click Save Flyer! ✨')),
+                  );
+                },
               ),
             ],
           ),
