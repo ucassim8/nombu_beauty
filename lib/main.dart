@@ -42,7 +42,6 @@ class _NombuBeautyAppState extends State<NombuBeautyApp> {
   }
 }
 
-// ------------------------- SPINNING LOGO COMPONENT -------------------------
 class SpinningLogo extends StatefulWidget {
   final Widget child;
   const SpinningLogo({super.key, required this.child});
@@ -199,7 +198,6 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   }
 }
 
-// ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
   final List> basketItems;
   BookingPoliciesScreen({required this.basketItems});
@@ -261,7 +259,6 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
   }
 }
 
-// ------------------------- SPLASH SCREEN -------------------------
 class SplashScreen extends StatefulWidget {
   final List> basketItems;
   SplashScreen({required this.basketItems});
@@ -286,7 +283,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   @override
-  void dispose() { _controller.dispose(); super.dispose(); }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -315,7 +315,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
-// ------------------------- FLASHING SPECIAL CARD -------------------------
 class FlashingSpecialCard extends StatefulWidget {
   final Map<String, dynamic> category;
   final VoidCallback onTap;
@@ -423,7 +422,6 @@ class _FlashingSpecialCardState extends State<FlashingSpecialCard> with SingleTi
   }
 }
 
-// ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatefulWidget {
   final List> basketItems;
   HomeScreen({required this.basketItems});
@@ -635,7 +633,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
   final List> basketItems;
@@ -796,7 +793,6 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 }
 
-// ------------------------- BASKET / CHECKOUT SCREEN -------------------------
 class BasketScreen extends StatefulWidget {
   final List> basketItems;
   BasketScreen({required this.basketItems});
@@ -1031,7 +1027,6 @@ class _BasketScreenState extends State<BasketScreen> {
   }
 }
 
-// ------------------------- ADMIN DASHBOARD -------------------------
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -1435,7 +1430,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  // ------------------------- CATEGORIZED SERVICES MANAGER -------------------------
   Widget _buildServicesManager() {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
