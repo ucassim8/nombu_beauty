@@ -91765,7 +91765,7 @@ this.a4f()},
 I(a){var s,r=null,q=A.b([B.he,B.j],t.t_),p=this.e
 p===$&&A.a()
 s=A.b([new A.bd(4,B.N,A.P(153,244,143,177),B.f,16)],t.V)
-return A.rk(r,A.d5(r,A.dI(A.eV(!1,A.bW(A.b([A.d5(r,A.aAI(A.a9U("assets/Logonombu.jpg",r,B.h_,130,130)),B.m,r,r,new A.cq(r,r,r,r,s,r,B.cX),r,130,r,r,r,r,r,130),B.es,A.aO("NOMBU Beauty",r,r,r,r,A.ct(r,r,B.d1,r,r,r,r,r,r,r,r,28,r,r,B.a1,r,r,!0,r,r,r,r,r,r,r,r),r,r,r),B.iH,A.aO("Your beauty, your way \ud83c\udf38",r,r,r,r,A.ct(r,r,B.ao,r,r,r,r,r,r,r,r,15,B.aU,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r,r)],t.p),B.w,B.o,B.a8),p),r,r),B.m,r,r,new A.cq(r,r,r,r,r,new A.lZ(B.mx,B.mw,B.dy,q,r,r),B.ab),r,r,r,r,r,r,r,r),r)}}
+return A.rk(r,A.d5(r,A.dI(A.eV(!1,A.bW(A.b([A.d5(r,A.aAI(A.a9U("assets/Splash screen logo.jpg",r,B.h_,130,130)),B.m,r,r,new A.cq(r,r,r,r,s,r,B.cX),r,130,r,r,r,r,r,130),B.es,A.aO("NOMBU Beauty",r,r,r,r,A.ct(r,r,B.d1,r,r,r,r,r,r,r,r,28,r,r,B.a1,r,r,!0,r,r,r,r,r,r,r,r),r,r,r),B.iH,A.aO("Your beauty, your way \ud83c\udf38",r,r,r,r,A.ct(r,r,B.ao,r,r,r,r,r,r,r,r,15,B.aU,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r,r)],t.p),B.w,B.o,B.a8),p),r,r),B.m,r,r,new A.cq(r,r,r,r,r,new A.lZ(B.mx,B.mw,B.dy,q,r,r),B.ab),r,r,r,r,r,r,r,r),r)}}
 A.avA.prototype={
 $0(){var s=this.a,r=s.c
 r.toString
