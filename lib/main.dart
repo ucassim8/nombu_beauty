@@ -291,9 +291,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+            body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.pink.shade100, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+          gradient: LinearGradient(
+            colors: [Colors.pink.shade100, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
         child: Center(
           child: FadeTransition(
@@ -301,11 +305,38 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/Logonombu.jpg', width: 130, height: 130),
+                Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.pink.shade200.withOpacity(0.6),
+                        blurRadius: 16,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/Logonombu.jpg',
+                      width: 130,
+                      height: 130,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
-                Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
+                Text(
+                  'NOMBU Beauty',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800),
+                ),
                 const SizedBox(height: 8),
-                Text('Your beauty, your way 🌸', style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic)),
+                Text(
+                  'Your beauty, your way 🌸',
+                  style: TextStyle(fontSize: 15, color: Colors.pink.shade400, fontStyle: FontStyle.italic),
+                ),
               ],
             ),
           ),
@@ -314,6 +345,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
   }
 }
+
 
 class FlashingSpecialCard extends StatefulWidget {
   final Map<String, dynamic> category;
