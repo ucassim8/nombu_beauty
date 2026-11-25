@@ -672,7 +672,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
             StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance.collection('settings').doc('promo').snapshots(),
               builder: (context, settingSnapshot) {
-                String flyerAsset = 'assets/IMG-20260915-WA0037.jpg'; // default fallback
+                String flyerAsset = 'assets/IMG-20260915-WA0037.jpg';
                 if (settingSnapshot.hasData && settingSnapshot.data!.exists) {
                   final data = settingSnapshot.data!.data() as Map<String, dynamic>?;
                   if (data != null && data['flyerImage'] != null) {
@@ -940,8 +940,8 @@ class _BasketScreenState extends State<BasketScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
               onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Return to previous screen
+                Navigator.pop(context);
+                Navigator.pop(context);
               },
               child: const Text("Awesome", style: TextStyle(color: Colors.white)),
             ),
@@ -1248,7 +1248,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: () async {
               int parsedPrice = int.tryParse(priceCtrl.text) ?? (data['price'] as num?)?.toInt() ?? 0;
 
-              // 1. Update Firestore locally
               await doc.reference.update({
                 'service': serviceCtrl.text,
                 'price': parsedPrice,
@@ -1258,7 +1257,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'status': 'Approved'
               });
 
-              // 2. Clean and format client phone number
               String rawPhone = data['phoneNumber'] ?? "";
               String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
 
@@ -1270,7 +1268,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 cleanPhone = '27' + cleanPhone;
               }
 
-              // 🚀 3. Ping Render backend to trigger approval templates
               try {
                 print("-> Pinging Render backend for approval templates...");
                 await http.post(
@@ -1474,7 +1471,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
           return ListView(
             padding: const EdgeInsets.all(12),
             children: [
-              // 🌸 PROMO FLYER MANAGEMENT BANNER CARD
               Card(
                 color: Colors.pink.shade50,
                 shape: RoundedRectangleBorder(
@@ -1989,7 +1985,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
                           onPressed: () async {
-                            // Quick Approve via Checkmark Button
                             await doc.reference.update({'status': 'Approved'});
 
                             String rawPhone = data['phoneNumber'] ?? "";
