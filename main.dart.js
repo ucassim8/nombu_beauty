@@ -91764,7 +91764,7 @@ s.l()
 this.a4f()},
 I(a){var s=null,r=A.b([B.he,B.j],t.t_),q=this.e
 q===$&&A.a()
-return A.rk(s,A.da(s,A.dI(A.eV(!1,A.bW(A.b([A.aAI(A.a9U("assets/Logonombu.jpg",s,B.h_,130,130)),B.es,A.aO("NOMBU Beauty",s,s,s,s,A.cs(s,s,B.d0,s,s,s,s,s,s,s,s,28,s,s,B.a1,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),B.iH,A.aO("Your beauty, your way \ud83c\udf38",s,s,s,s,A.cs(s,s,B.ao,s,s,s,s,s,s,s,s,15,B.aU,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s)],t.p),B.w,B.n,B.a8),q),s,s),B.q,s,s,new A.cu(s,s,s,s,s,new A.lZ(B.mx,B.mw,B.dx,r,s,s),B.ab),s,s,s,s,s,s,s,s),s)}}
+return A.rk(s,A.da(s,A.dI(A.eV(!1,A.bW(A.b([A.aAI(A.a9U("assets/Splash screen logo.jpg",s,B.h_,130,130)),B.es,A.aO("NOMBU Beauty",s,s,s,s,A.cs(s,s,B.d0,s,s,s,s,s,s,s,s,28,s,s,B.a1,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),B.iH,A.aO("Your beauty, your way \ud83c\udf38",s,s,s,s,A.cs(s,s,B.ao,s,s,s,s,s,s,s,s,15,B.aU,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s)],t.p),B.w,B.n,B.a8),q),s,s),B.q,s,s,new A.cu(s,s,s,s,s,new A.lZ(B.mx,B.mw,B.dx,r,s,s),B.ab),s,s,s,s,s,s,s,s),s)}}
 A.avA.prototype={
 $0(){var s=this.a,r=s.c
 r.toString
