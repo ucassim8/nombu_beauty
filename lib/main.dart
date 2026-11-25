@@ -25,7 +25,7 @@ class NombuBeautyApp extends StatefulWidget {
 }
 
 class _NombuBeautyAppState extends State<NombuBeautyApp> {
-  final List<Map<String, dynamic>> basketItems = [];
+  final List> basketItems = [];
 
   @override
   Widget build(BuildContext context) {
@@ -62,26 +62,26 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 2500), 
+      duration: const Duration(milliseconds: 2500),
       vsync: this,
     );
 
     _spinAnimation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 0.0, end: 8.0 * math.pi).chain(CurveTween(curve: Curves.easeOutCubic)),
-        weight: 100.0, 
+        weight: 100.0,
       ),
     ]).animate(_controller);
 
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 4.5).chain(CurveTween(curve: Curves.easeOut)), 
-        weight: 15.0, 
+        tween: Tween<double>(begin: 1.0, end: 4.5).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 15.0,
       ),
       TweenSequenceItem(
-        tween: ConstantTween<double>(4.5), 
+        tween: ConstantTween<double>(4.5),
         weight: 85.0,
       ),
     ]).animate(_controller);
@@ -109,8 +109,8 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
               animation: _controller,
               builder: (context, child) {
                 final matrix = Matrix4.identity()
-                  ..setEntry(3, 2, 0.002) 
-                  ..rotateX(_spinAnimation.value); 
+                  ..setEntry(3, 2, 0.002)
+                  ..rotateX(_spinAnimation.value);
 
                 return Transform.scale(
                   scale: _scaleAnimation.value,
@@ -123,22 +123,22 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
                       child: GestureDetector(
                         onTap: _reverseAndRemoveOverlay,
                         child: Container(
-                          width: 90,  
-                          height: 90, 
-                          alignment: Alignment.center, 
+                          width: 90,
+                          height: 90,
+                          alignment: Alignment.center,
                           key: ValueKey(_spinAnimation.value),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFE8B4B8).withOpacity(1.0), 
-                                blurRadius: 20, 
-                                spreadRadius: 8, 
+                                color: const Color(0xFFE8B4B8).withOpacity(1.0),
+                                blurRadius: 20,
+                                spreadRadius: 8,
                               ),
                             ],
                           ),
                           child: SizedBox(
-                            width: 70,  
+                            width: 70,
                             height: 70,
                             child: ClipOval(
                               child: Image.asset(
@@ -165,7 +165,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
 
   void _reverseAndRemoveOverlay() async {
     if (_overlayEntry == null) return;
-    await _controller.reverse(); 
+    await _controller.reverse();
     _overlayEntry?.remove();
     _overlayEntry = null;
     _controller.reset();
@@ -201,7 +201,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
 
 // ------------------------- BOOKING POLICIES -------------------------
 class BookingPoliciesScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List> basketItems;
   BookingPoliciesScreen({required this.basketItems});
 
   @override
@@ -263,7 +263,7 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
 
 // ------------------------- SPLASH SCREEN -------------------------
 class SplashScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List> basketItems;
   SplashScreen({required this.basketItems});
 
   @override
@@ -301,7 +301,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/logo.jpg', width: 130, height: 130),
+                Image.asset('assets/Logonombu.jpg', width: 130, height: 130),
                 const SizedBox(height: 20),
                 Text('NOMBU Beauty', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink.shade800)),
                 const SizedBox(height: 8),
@@ -425,7 +425,7 @@ class _FlashingSpecialCardState extends State<FlashingSpecialCard> with SingleTi
 
 // ------------------------- HOME SCREEN -------------------------
 class HomeScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List> basketItems;
   HomeScreen({required this.basketItems});
 
   @override
@@ -433,7 +433,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, dynamic>> categories = [
+  final List> categories = [
     {'name': 'Specials & Promos', 'icon': Icons.local_fire_department},
     {'name': 'Hair Services', 'icon': Icons.content_cut},
     {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
@@ -468,8 +468,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 40,
                   height: 40,
                   child: Image.asset(
-                    'assets/Logonombu.jpg', 
-                    fit: BoxFit.cover, 
+                    'assets/Logonombu.jpg',
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -492,8 +492,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          ], 
-        ), 
+          ],
+        ),
         backgroundColor: Colors.pink.shade400,
         elevation: 5,
         actions: [
@@ -594,8 +594,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   "Follow Our Pages:",
                   style: TextStyle(
-                    fontWeight: FontWeight.bold, 
-                    color: Colors.pink.shade700, 
+                    fontWeight: FontWeight.bold,
+                    color: Colors.pink.shade700,
                     fontSize: 15,
                   ),
                 ),
@@ -638,7 +638,7 @@ class _HomeScreenState extends State<HomeScreen> {
 // ------------------------- SERVICE SCREEN -------------------------
 class ServiceScreen extends StatefulWidget {
   final String category;
-  final List<Map<String, dynamic>> basketItems;
+  final List> basketItems;
   ServiceScreen({required this.category, required this.basketItems});
 
   @override
@@ -652,7 +652,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.category), 
+        title: Text(widget.category),
         backgroundColor: Colors.pink.shade400,
         actions: [
           IconButton(
@@ -733,9 +733,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Text(
-                        isSpecialsCategory 
-                          ? 'No specials listed in Firestore yet. Add them in the Admin Dashboard under "Specials & Promos"!'
-                          : 'No services found in this category.',
+                        isSpecialsCategory
+                            ? 'No specials listed in Firestore yet. Add them in the Admin Dashboard under "Specials & Promos"!'
+                            : 'No services found in this category.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.pink.shade900, fontSize: 15),
                       ),
@@ -748,7 +748,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
-                    
+
                     final String serviceName = (data['name'] ?? data['Name'] ?? '').toString();
                     final priceVal = data['price'] ?? data['Price'] ?? data['Price '] ?? 0;
                     final int servicePrice = (priceVal as num?)?.toInt() ?? 0;
@@ -798,7 +798,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
 // ------------------------- BASKET / CHECKOUT SCREEN -------------------------
 class BasketScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List> basketItems;
   BasketScreen({required this.basketItems});
 
   @override
@@ -855,7 +855,7 @@ class _BasketScreenState extends State<BasketScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your basket is empty!')));
       return;
     }
-    if (clientName == null || clientPhone == null || selectedProvince == null || 
+    if (clientName == null || clientPhone == null || selectedProvince == null ||
         selectedLocation == null || selectedDate == null || selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete all fields!')));
       return;
@@ -1008,7 +1008,7 @@ class _BasketScreenState extends State<BasketScreen> {
             subtitle: Text(isAfterHours ? "Applied based on time selection." : "Slots before 8AM or after 6PM"),
             value: isAfterHours,
             activeColor: Colors.pink,
-            onChanged: null, 
+            onChanged: null,
           ),
           const SizedBox(height: 15),
           Row(children: [
@@ -1021,7 +1021,7 @@ class _BasketScreenState extends State<BasketScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400, minimumSize: const Size(double.infinity, 60), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
             onPressed: _isSubmitting ? null : submitBooking,
             child: Text(
-              _isSubmitting ? 'Processing Booking... Please wait ⏳' : 'Book Basket (R$finalPrice)', 
+              _isSubmitting ? 'Processing Booking... Please wait ⏳' : 'Book Basket (R$finalPrice)',
               style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           )
@@ -1044,7 +1044,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _pass = TextEditingController();
   int? _selectedRevenueYear;
 
-  final List<Map<String, String>> premiumQuotes = [
+  final List> premiumQuotes = [
     {"q": "You are doing amazing things today, my love! Let's conquer this dashboard.", "a": "Hubby"},
     {"q": "Just a reminder that you're the hardest worker I know, and I'm so proud of you.", "a": "Hubby"},
     {"q": "Take a deep breath, you've got this beautiful! 🌸", "a": "Hubby"},
@@ -1081,7 +1081,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } catch (e) {
       print("Error parsing date: $dateStr");
     }
-    return DateTime(2099); 
+    return DateTime(2099);
   }
 
   bool _isDateInPast(String dateStr) {
@@ -1147,7 +1147,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (mounted) {
       showDialog(
         context: context,
-        barrierDismissible: true, 
+        barrierDismissible: true,
         builder: (BuildContext context) {
           return Dialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -1250,8 +1250,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
               // 1. Update Firestore locally
               await doc.reference.update({
-                'service': serviceCtrl.text, 
-                'price': parsedPrice, 
+                'service': serviceCtrl.text,
+                'price': parsedPrice,
                 'location': locCtrl.text,
                 'date': dateCtrl.text,
                 'time': timeCtrl.text,
@@ -1260,7 +1260,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
               // 2. Clean and format client phone number
               String rawPhone = data['phoneNumber'] ?? "";
-              String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), ''); 
+              String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
 
               if (cleanPhone.startsWith('270')) {
                 cleanPhone = '27' + cleanPhone.substring(3);
@@ -1291,7 +1291,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               } catch (e) {
                 print("❌ Approval request network error: $e");
               }
-              
+
               if (context.mounted) Navigator.pop(context);
             },
             child: const Text("Approve & Send WhatsApp"),
@@ -1519,7 +1519,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   elevation: 2,
                   child: ExpansionTile(
-                    initiallyExpanded: categoryName == 'Specials & Promos', 
+                    initiallyExpanded: categoryName == 'Specials & Promos',
                     title: Text(
                       "$categoryName (${categoryDocs.length})",
                       style: TextStyle(
@@ -1587,8 +1587,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
             TextField(controller: _pass, obscureText: true, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder())),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400), 
-              onPressed: () { 
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+              onPressed: () {
                 if (_pass.text == '2478') {
                   setState(() {
                     _auth = true;
@@ -1596,7 +1596,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _fetchAndShowQuote();
                   });
-                } 
+                }
               },
               child: const Text('Login', style: TextStyle(color: Colors.white)),
             ),
@@ -1654,7 +1654,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
     );
-  }         
+  }
 
   Widget _buildBookingList(List<DocumentSnapshot> docs, bool isHistory) {
     if (!isHistory) {
@@ -1704,7 +1704,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     for (var doc in completedList) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      
+
       var priceVal = data['price'];
       int price = 0;
       if (priceVal is int) price = priceVal;
@@ -1712,7 +1712,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
       String dateStr = data['date'] ?? "";
       List<String> parts = dateStr.split('/');
-      
+
       if (parts.length == 3) {
         int monthIdx = int.tryParse(parts[1]) ?? 0;
         int year = int.tryParse(parts[2]) ?? DateTime.now().year;
@@ -1752,7 +1752,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           color: Colors.green.shade50,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), 
+            borderRadius: BorderRadius.circular(15),
             side: BorderSide(color: Colors.green.shade200)
           ),
           child: Padding(
@@ -1838,12 +1838,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    entry.key, 
+                                    entry.key,
                                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade700)
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "R${entry.value}", 
+                                    "R${entry.value}",
                                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green.shade800)
                                   ),
                                 ],
@@ -1856,7 +1856,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ),
         ),
-        
+
         const SizedBox(height: 8),
 
         Padding(
@@ -1943,7 +1943,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Row(
               children: [
                 Text(
-                  data['clientName'] ?? 'No Name', 
+                  data['clientName'] ?? 'No Name',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 const SizedBox(width: 8),
@@ -1951,14 +1951,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
                   child: Text(
-                    isOverdue ? "Needs Completion Check ⚠️" : status, 
+                    isOverdue ? "Needs Completion Check ⚠️" : status,
                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1972,7 +1972,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     style: TextStyle(height: 1.4, color: Colors.grey.shade800, fontSize: 14),
                   ),
                 ),
-                
+
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -2019,19 +2019,51 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       else if (status == 'Approved')
                         IconButton(
                           icon: Icon(
-                            Icons.done_all, 
+                            Icons.done_all,
                             color: isOverdue ? Colors.amber.shade800 : Colors.purple,
                             size: isOverdue ? 28 : 24,
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           constraints: const BoxConstraints(),
-                          onPressed: () => doc.reference.update({'status': 'Completed'}),
+                          onPressed: () => doc.reference.update({
+                            'status': 'Completed',
+                            'completedAt': FieldValue.serverTimestamp(),
+                          }),
                         ),
                       IconButton(
                         icon: const Icon(Icons.cancel, color: Colors.orange),
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         constraints: const BoxConstraints(),
-                        onPressed: () => doc.reference.update({'status': 'Cancelled'}),
+                        onPressed: () async {
+                          await doc.reference.update({'status': 'Cancelled'});
+
+                          String rawPhone = (data['phoneNumber'] ?? "").toString();
+                          String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
+                          if (cleanPhone.startsWith('270')) {
+                            cleanPhone = '27' + cleanPhone.substring(3);
+                          } else if (cleanPhone.startsWith('0')) {
+                            cleanPhone = '27' + cleanPhone.substring(1);
+                          } else if (cleanPhone.isNotEmpty && !cleanPhone.startsWith('27')) {
+                            cleanPhone = '27' + cleanPhone;
+                          }
+
+                          try {
+                            await http.post(
+                              Uri.parse('https://nombu-backend.onrender.com/cancel-booking'),
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({
+                                'bookingId': doc.id,
+                                'phoneNumber': cleanPhone,
+                                'clientName': data['clientName'],
+                                'service': data['service'],
+                                'date': data['date'],
+                                'time': data['time'],
+                              }),
+                            );
+                          } catch (e) {
+                            print("❌ Cancel request network error: $e");
+                          }
+                        },
                       ),
                     ] else ...[
                       IconButton(
@@ -2042,7 +2074,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () => doc.reference.update({'status': 'Approved'}),
                       ),
                     ],
-                    
+
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       tooltip: "Delete Permanently",
