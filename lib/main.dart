@@ -291,7 +291,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            body: Container(
+                  body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.pink.shade100, Colors.white],
@@ -305,26 +305,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 130,
-                  height: 130,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.pink.shade200.withOpacity(0.6),
-                        blurRadius: 16,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/Splash screen logo.jpg',
-                      width: 130,
-                      height: 130,
-                      fit: BoxFit.cover,
-                    ),
+                ClipOval(
+                  child: Image.asset(
+                    'assets/Logonombu.jpg',
+                    width: 130,
+                    height: 130,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -345,6 +331,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
   }
 }
+
 
 
 class FlashingSpecialCard extends StatefulWidget {
