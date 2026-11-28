@@ -25,7 +25,7 @@ class NombuBeautyApp extends StatefulWidget {
 }
 
 class _NombuBeautyAppState extends State<NombuBeautyApp> {
-  final List<Map<String, dynamic>> basketItems = [];
+  final List basketItems = [];
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +199,7 @@ class _SpinningLogoState extends State<SpinningLogo> with SingleTickerProviderSt
 }
 
 class BookingPoliciesScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List basketItems;
   BookingPoliciesScreen({required this.basketItems});
 
   @override
@@ -260,7 +260,7 @@ By booking an appointment, you agree to abide by our salon policies. Thank you f
 }
 
 class SplashScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List basketItems;
   SplashScreen({required this.basketItems});
 
   @override
@@ -291,7 +291,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-                  body: Container(
+      body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.pink.shade100, Colors.white],
@@ -331,8 +331,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
   }
 }
-
-
 
 class FlashingSpecialCard extends StatefulWidget {
   final Map<String, dynamic> category;
@@ -442,7 +440,7 @@ class _FlashingSpecialCardState extends State<FlashingSpecialCard> with SingleTi
 }
 
 class HomeScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List basketItems;
   HomeScreen({required this.basketItems});
 
   @override
@@ -450,7 +448,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, dynamic>> categories = [
+  final List categories = [
     {'name': 'Specials & Promos', 'icon': Icons.local_fire_department},
     {'name': 'Hair Services', 'icon': Icons.content_cut},
     {'name': 'Hair Laundry', 'icon': Icons.local_laundry_service},
@@ -654,7 +652,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class ServiceScreen extends StatefulWidget {
   final String category;
-  final List<Map<String, dynamic>> basketItems;
+  final List basketItems;
   ServiceScreen({required this.category, required this.basketItems});
 
   @override
@@ -724,7 +722,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(
-              child: Text('Error loading services.', style: TextStyle(color: Colors.pink.shade900)),
+                    child: Text('Error loading services.', style: TextStyle(color: Colors.pink.shade900)),
                   );
                 }
 
@@ -813,7 +811,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
 }
 
 class BasketScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> basketItems;
+  final List basketItems;
   BasketScreen({required this.basketItems});
 
   @override
@@ -937,8 +935,29 @@ class _BasketScreenState extends State<BasketScreen> {
         });
         return;
       }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not save your booking. Please try again!')),
+          );
+        }
+        return;
+      }
     } catch (e) {
       print("-> Cloud alert network error: $e");
+      setState(() {
+        _isSubmitting = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Network error while submitting booking. Please try again!')),
+        );
+      }
+      return;
     }
 
     widget.basketItems.clear();
@@ -1058,7 +1077,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final TextEditingController _pass = TextEditingController();
   int? _selectedRevenueYear;
 
-  final List<Map<String, dynamic>> premiumQuotes = [
+  final List premiumQuotes = [
     {"q": "You are doing amazing things today, my love! Let's conquer this dashboard.", "a": "Hubby"},
     {"q": "Just a reminder that you're the hardest worker I know, and I'm so proud of you.", "a": "Hubby"},
     {"q": "Take a deep breath, you've got this beautiful! 🌸", "a": "Hubby"},
@@ -1683,8 +1702,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         if (statusB == 'Pending' && statusA != 'Pending') return 1;
 
         if (statusA == 'Pending' && statusB == 'Pending') {
-          Timestamp tA = dataA['timestamp'] ?? Timestamp.now();
-          Timestamp tB = dataB['timestamp'] ?? Timestamp.now();
+          Timestamp tA = dataA['timestamp'] ?? dataA['createdAt'] ?? Timestamp.now();
+          Timestamp tB = dataB['timestamp'] ?? dataB['createdAt'] ?? Timestamp.now();
           return tB.compareTo(tA);
         }
 
@@ -1741,8 +1760,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Map<String, int> selectedYearEarnings = earningsByYear[activeYear] ?? {};
 
     var historySort = (DocumentSnapshot a, DocumentSnapshot b) {
-      Timestamp tA = (a.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
-      Timestamp tB = (b.data() as Map<String, dynamic>)['timestamp'] ?? Timestamp.now();
+      Map<String, dynamic> dataA = a.data() as Map<String, dynamic>;
+      Map<String, dynamic> dataB = b.data() as Map<String, dynamic>;
+      Timestamp tA = dataA['timestamp'] ?? dataA['createdAt'] ?? Timestamp.now();
+      Timestamp tB = dataB['timestamp'] ?? dataB['createdAt'] ?? Timestamp.now();
       return tB.compareTo(tA);
     };
     completedList.sort(historySort);
@@ -2002,7 +2023,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                             String rawPhone = data['phoneNumber'] ?? "";
                             String cleanPhone = rawPhone.replaceAll(RegExp(r'[^0-9]'), '');
-                            if (cleanPhone.startsWith('0')) cleanPhone = '27' + cleanPhone.substring(1);
+                            if (cleanPhone.startsWith('270')) {
+                              cleanPhone = '27' + cleanPhone.substring(3);
+                            } else if (cleanPhone.startsWith('0')) {
+                              cleanPhone = '27' + cleanPhone.substring(1);
+                            } else if (!cleanPhone.startsWith('27')) {
+                              cleanPhone = '27' + cleanPhone;
+                            }
 
                             try {
                               await http.post(
